@@ -5,38 +5,44 @@ import com.online.taxi.dto.push.PushLoopBatchRequest;
 import com.online.taxi.dto.push.PushLoopMessageDto;
 import com.online.taxi.entity.PushLoopMessage;
 import com.online.taxi.service.PushLoopService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
+ * 获取消息
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @RestController
 @RequestMapping("/loop")
+@RequiredArgsConstructor
 public class LoopMessageController {
 
-    @Autowired
-    private PushLoopService pushLoopService;
+    @NonNull
+    private final PushLoopService pushLoopService;
 
-    @RequestMapping(value = "/message",method = RequestMethod.POST)
-    public ResponseResult message(@RequestBody PushLoopMessage pushLoopMessage){
+    @RequestMapping(value = "/message", method = RequestMethod.POST)
+    public ResponseResult<?> message(@RequestBody PushLoopMessage pushLoopMessage) {
 
-        int result = pushLoopService.insert(pushLoopMessage);
+        pushLoopService.insert(pushLoopMessage);
         return ResponseResult.success("");
     }
 
-    @RequestMapping(value = "/message/{acceptIdentity}/{acceptId}",method = RequestMethod.GET)
-    public ResponseResult getMessage(@PathVariable("acceptIdentity") Integer acceptIdentity, @PathVariable("acceptId") String acceptId){
+    @RequestMapping(value = "/message/{acceptIdentity}/{acceptId}", method = RequestMethod.GET)
+    public ResponseResult<?> getMessage(@PathVariable("acceptIdentity") Integer acceptIdentity, @PathVariable("acceptId") String acceptId) {
 
-        List<PushLoopMessageDto> list = pushLoopService.selectUnreadMessageListByIdentityAndAcceptId(acceptIdentity,acceptId);
+        List<PushLoopMessageDto> list = pushLoopService.selectUnreadMessageListByIdentityAndAcceptId(acceptIdentity, acceptId);
         return ResponseResult.success(list);
     }
 
-    @RequestMapping(value = "/batch/message",method = RequestMethod.POST)
-    public ResponseResult batcgMessage(@RequestBody PushLoopBatchRequest pushLoopBatchRequest){
+    @RequestMapping(value = "/batch/message", method = RequestMethod.POST)
+    public ResponseResult<?> batcgMessage(@RequestBody PushLoopBatchRequest pushLoopBatchRequest) {
 
-        int result = pushLoopService.insertBatch(pushLoopBatchRequest);
+        pushLoopService.insertBatch(pushLoopBatchRequest);
         return ResponseResult.success("");
     }
 }

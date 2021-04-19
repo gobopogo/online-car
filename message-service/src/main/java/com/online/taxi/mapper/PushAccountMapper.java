@@ -9,7 +9,7 @@ import java.util.List;
 public interface PushAccountMapper {
     int deleteByPrimaryKey(Integer id);
 
-    int insert(PushAccount record);
+//    int insert(PushAccount record);
 
     int insertSelective(PushAccount record);
 
@@ -17,7 +17,7 @@ public interface PushAccountMapper {
 
     int updateByPrimaryKeySelective(PushAccount record);
 
-    int updateByPrimaryKey(PushAccount record);
+//    int updateByPrimaryKey(PushAccount record);
 
     List<PushAccount> selectByIdentityAndYid(PushAccount pushAccount);
 }

@@ -5,6 +5,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
+ * 批量获取消息对象
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @Data
 public class PushLoopBatchRequest {
@@ -30,6 +34,4 @@ public class PushLoopBatchRequest {
         this.sendIdentity = sendIdentity;
     }
 
-    public PushLoopBatchRequest() {
-    }
 }

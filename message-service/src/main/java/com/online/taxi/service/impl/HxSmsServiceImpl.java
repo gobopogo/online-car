@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.soap.*;
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -81,7 +80,7 @@ public class HxSmsServiceImpl implements HxSmsService {
         String sendCount = null;
         Sms sms = new Sms();
 
-        httpclient = SSLClient.createSSLClientDefault();
+        httpclient = SSLClient.createSslClientDefault();
         String extNumber = "";
         String planSendTime = "";
         String sendId = "";
@@ -98,9 +97,10 @@ public class HxSmsServiceImpl implements HxSmsService {
             // 将字符转化为XML
             String returnString = EntityUtils.toString(entity, "UTF-8");
             SOAPMessage msg = formatSoapString(returnString);
+            assert msg != null;
             msg.writeTo(System.out);
             SOAPBody body = msg.getSOAPBody();
-            Map<String, String> map = new HashMap<String, String>(15);
+            Map<String, String> map = new HashMap<>(15);
             Iterator<SOAPElement> iterator = body.getChildElements();
             parseSoap(iterator, map);
 
@@ -137,7 +137,7 @@ public class HxSmsServiceImpl implements HxSmsService {
     private static CloseableHttpClient httpclient;
 
     public static void main(String[] args) throws Exception {
-        httpclient = SSLClient.createSSLClientDefault();
+        httpclient = SSLClient.createSslClientDefault();
         String wsdl = "https://dx.ipyy.net/webservice.asmx?wsdl";
         //改为实际账号名
         String userName = "8M00258";
@@ -145,13 +145,10 @@ public class HxSmsServiceImpl implements HxSmsService {
         String password = "8M0025844";
         //多个手机号用“,”分隔
         String mobiles = "18911752116,13620683679";
-//        String content = "【逸行出行】您的验证码为123456，10分钟内有效，如非本人操作，请忽略。";
-//        String content = "【逸品出行】您收到一条预约派单，时间2018-10-25 16:20,乘客尾号2116,从西湖到北京的订单，请合理安排接乘时间。";
         String content = "【逸品出行】wo shi zhong guo ren";
         String extNumber = "";
 
         //定时短信需指定此字段，须UTC格式：2016-12-06T08:09:10
-//	    String planSendTime="2018-10-18T10:15:10";
         String planSendTime = "";
 
         HttpPost post = new HttpPost(wsdl);
@@ -165,9 +162,10 @@ public class HxSmsServiceImpl implements HxSmsService {
             // 将字符转化为XML
             String returnString = EntityUtils.toString(entity, "UTF-8");
             SOAPMessage msg = formatSoapString(returnString);
+            assert msg != null;
             msg.writeTo(System.out);
             SOAPBody body = msg.getSOAPBody();
-            Map<String, String> map = new HashMap<String, String>(15);
+            Map<String, String> map = new HashMap<>(15);
             Iterator<SOAPElement> iterator = body.getChildElements();
             parseSoap(iterator, map);
 
@@ -182,23 +180,23 @@ public class HxSmsServiceImpl implements HxSmsService {
 
     }
 
-    private static String buildSoapData(String userName, String password, String mobiles, String content, String extNumber, String planSendTime) throws UnsupportedEncodingException {
-        StringBuffer soap = new StringBuffer();
+    private static String buildSoapData(String userName, String password, String mobiles, String content, String extNumber, String planSendTime) {
+        StringBuilder soap = new StringBuilder();
 
         soap.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         soap.append("<soap12:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap12=\"http://www.w3.org/2003/05/soap-envelope\">");
         soap.append("<soap12:Body>");
         soap.append("<SendSms xmlns=\"http://www.yysms.com/\">");
-        soap.append("<userName>" + userName + "</userName>");
-        soap.append("<password>" + password + "</password>");
+        soap.append("<userName>").append(userName).append("</userName>");
+        soap.append("<password>").append(password).append("</password>");
         soap.append("<sms>");
-        soap.append("<Msisdns>" + mobiles + "</Msisdns>");
-        soap.append("<SMSContent><![CDATA[" + content + "]]></SMSContent>");
-        soap.append("<ExtNumber>" + extNumber + "</ExtNumber>");
+        soap.append("<Msisdns>").append(mobiles).append("</Msisdns>");
+        soap.append("<SMSContent><![CDATA[").append(content).append("]]></SMSContent>");
+        soap.append("<ExtNumber>").append(extNumber).append("</ExtNumber>");
         if (!planSendTime.isEmpty()) {
-            soap.append("<PlanSendTime xsi:nil='false'>" + planSendTime + "</PlanSendTime>");
+            soap.append("<PlanSendTime xsi:nil='false'>").append(planSendTime).append("</PlanSendTime>");
         } else {
-            soap.append("<PlanSendTime xsi:nil='true'>" + planSendTime + "</PlanSendTime>");
+            soap.append("<PlanSendTime xsi:nil='true'>").append(planSendTime).append("</PlanSendTime>");
         }
         soap.append("</sms>");
         soap.append("</SendSms>");

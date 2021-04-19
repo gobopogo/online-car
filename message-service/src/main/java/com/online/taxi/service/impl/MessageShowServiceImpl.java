@@ -18,7 +18,7 @@ public class MessageShowServiceImpl implements MessageShowService {
     private MessageShowDao messageShowDao;
 
     @Override
-    public int saveMessageShow(String title, String content, String yid, int acceptIdentity, int pushType) {
+    public void saveMessageShow(String title, String content, String yid, int acceptIdentity, int pushType) {
         Date nowTime = new Date();
         MessageShow messageShow = new MessageShow();
         messageShow.setTitle(title);
@@ -32,6 +32,5 @@ public class MessageShowServiceImpl implements MessageShowService {
         messageShow.setPushType(pushType);
 
         messageShowDao.insertSelective(messageShow);
-        return 0;
     }
 }

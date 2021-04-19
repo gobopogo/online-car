@@ -3,6 +3,10 @@ package com.online.taxi.dto.push;
 import lombok.Data;
 
 /**
+ * 推送信息
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @Data
 public class PushRequest {
@@ -11,7 +15,7 @@ public class PushRequest {
 
     private Integer sendIdentity;
 
-    private int acceptIdentity ;
+    private int acceptIdentity;
 
     private String acceptId;
 

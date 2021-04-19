@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * 短息对象
+ * 短信对象
  *
  * @author dongjb
  * @date 2021/04/18

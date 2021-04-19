@@ -3,12 +3,24 @@ package com.online.taxi.constatnt;
 import lombok.Getter;
 
 /**
- * @Author: yueyi2019
+ * 平台类型
+ *
+ * @author : dongjb
+ * @date 2021/04/19
  */
 @Getter
 public enum PlatformEnum {
+    /**
+     * iOS系统
+     */
     IOS(1, "iOS"),
+    /**
+     * Android系统
+     */
     ANDROID(2, "Android"),
+    /**
+     * 其他系统
+     */
     OTHER(9, "其他系统");
 
     private final int code;

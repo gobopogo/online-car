@@ -5,6 +5,10 @@ import lombok.Data;
 import java.util.Date;
 
 /**
+ * 推送账户
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @Data
 public class PushAccount {

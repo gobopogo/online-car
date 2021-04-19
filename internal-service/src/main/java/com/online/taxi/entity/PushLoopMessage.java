@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
+ * 获取消息对象
  */
 @Data
 public class PushLoopMessage {
