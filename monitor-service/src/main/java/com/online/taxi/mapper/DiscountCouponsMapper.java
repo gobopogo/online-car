@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 功能描述
+ * 优惠券统计mapper
  *
- * @date 2018/10/17
+ * @author dongjb
+ * @date 2020/04/20
  */
 @Mapper
 @Service
@@ -18,8 +19,9 @@ public interface DiscountCouponsMapper {
 
     /**
      * 优惠券统计
-     * @param param
-     * @return
+     *
+     * @param param 统计参数
+     * @return 统计结果列表
      */
     List<DiscountCouponsResponse> discountCoupons(Map<String, Object> param);
 }

@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 功能描述
+ * 车辆统计mapper
  *
- * @date 2018/10/17
+ * @author dongjb
+ * @date 2021/04/20
  */
 @Mapper
 @Service
@@ -18,8 +19,9 @@ public interface CarAmountMapper {
 
     /**
      * 车辆统计
-     * @param param
-     * @return
+     *
+     * @param param 统计参数
+     * @return 统计结果
      */
     List<CarAmountResponse> carAmount(Map<String, Object> param);
 }

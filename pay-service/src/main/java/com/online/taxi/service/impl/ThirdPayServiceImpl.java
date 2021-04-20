@@ -6,23 +6,28 @@ import com.online.taxi.entity.AlipayCallbackInfo;
 import com.online.taxi.entity.ScanPayResData;
 import com.online.taxi.entity.WeixinpayCallbackInfo;
 import com.online.taxi.service.ThirdPayService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Map;
 
 /**
- * @date 2018/9/14
+ * 第三方支付结果入库
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @Service
+@RequiredArgsConstructor
 public class ThirdPayServiceImpl implements ThirdPayService {
 
-    @Autowired
-    private AlipayCallbackInfoDao alipayCallbackInfoDao;
+    @NonNull
+    private final AlipayCallbackInfoDao alipayCallbackInfoDao;
 
-    @Autowired
-    private WeixinpayCallbackInfoDao weixinpayCallbackInfoDao;
+    @NonNull
+    private final WeixinpayCallbackInfoDao weixinpayCallbackInfoDao;
 
     @Override
     public void insertAlipay(Map<String, String> params) {
@@ -33,7 +38,6 @@ public class ThirdPayServiceImpl implements ThirdPayService {
         String charset = params.get("charset");
         String version = params.get("version");
         String signType = params.get("sign_type");
-        String sign = params.get("sign");
         String tradeNo = params.get("trade_no");
         String outTradeNo = params.get("out_trade_no");
         String buyerId = params.get("buyer_id");
@@ -50,7 +54,7 @@ public class ThirdPayServiceImpl implements ThirdPayService {
         String body = params.get("body");
         String gmtCreate = params.get("gmt_create");
         String gmtPayment = params.get("gmt_payment");
-        String fund_bill_list = params.get("fund_bill_list");
+        String fundBillList = params.get("fund_bill_list");
         AlipayCallbackInfo alipayCallbackInfo = new AlipayCallbackInfo();
         alipayCallbackInfo.setNotifyTime(notifyTime);
         alipayCallbackInfo.setNotifyType(notifyType);
@@ -59,7 +63,6 @@ public class ThirdPayServiceImpl implements ThirdPayService {
         alipayCallbackInfo.setCharset(charset);
         alipayCallbackInfo.setVersion(version);
         alipayCallbackInfo.setSignType(signType);
-        // alipayCallbackInfo.setSign(sign);
         alipayCallbackInfo.setTradeNo(tradeNo);
         alipayCallbackInfo.setOutTradeNo(outTradeNo);
         alipayCallbackInfo.setBuyerId(buyerId);
@@ -76,7 +79,7 @@ public class ThirdPayServiceImpl implements ThirdPayService {
         alipayCallbackInfo.setBody(body);
         alipayCallbackInfo.setGmtCreate(gmtCreate);
         alipayCallbackInfo.setGmtPayment(gmtPayment);
-        alipayCallbackInfo.setFundBillList(fund_bill_list);
+        alipayCallbackInfo.setFundBillList(fundBillList);
         alipayCallbackInfoDao.insertSelective(alipayCallbackInfo);
     }
 

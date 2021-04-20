@@ -4,9 +4,10 @@ import lombok.Data;
 
 
 /**
- * 订单request
+ * 订单统计申请对象
  *
- * @date 2018/10/15
+ * @author dongjb
+ * @date 2021/04/20
  */
 @Data
 public class OrderRequest {

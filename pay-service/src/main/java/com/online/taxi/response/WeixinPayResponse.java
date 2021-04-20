@@ -3,7 +3,10 @@ package com.online.taxi.response;
 import lombok.Data;
 
 /**
- * @date 2018/8/17
+ * 微信支付结果
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @Data
 public class WeixinPayResponse {

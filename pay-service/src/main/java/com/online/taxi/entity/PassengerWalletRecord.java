@@ -5,6 +5,10 @@ import lombok.Data;
 import java.util.Date;
 
 /**
+ * 乘客钱包流水
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @Data
 public class PassengerWalletRecord {

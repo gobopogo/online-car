@@ -17,8 +17,9 @@ import com.online.taxi.service.PassengerWalletService;
 import com.online.taxi.service.ThirdPayService;
 import com.online.taxi.service.WeixinPayService;
 import com.online.taxi.util.*;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,6 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -35,10 +35,14 @@ import java.nio.charset.StandardCharsets;
 import static com.online.taxi.constant.PayConst.RETURN_CODE_SUCCESS;
 
 /**
- * @date 2018/8/16
+ * 微信支付服务
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class WeixinPayServiceImpl implements WeixinPayService {
 
     @Value("${wxpay.appId}")
@@ -56,20 +60,20 @@ public class WeixinPayServiceImpl implements WeixinPayService {
     @Value("${wxpay.query.api}")
     private String queryApi;
 
-    @Autowired
-    private ServiceAddress serviceAddress;
+    @NonNull
+    private final ServiceAddress serviceAddress;
 
-    @Autowired
-    private RestTemplate restTemplate;
+    @NonNull
+    private final RestTemplate restTemplate;
 
-    @Autowired
-    private PassengerWalletService passengerWalletService;
+    @NonNull
+    private final PassengerWalletService passengerWalletService;
 
-    @Autowired
-    private ThirdPayService thirdPayService;
+    @NonNull
+    private final ThirdPayService thirdPayService;
 
-    @Autowired
-    private CommonPayService commonPayService;
+    @NonNull
+    private final CommonPayService commonPayService;
 
     @Override
     public WeixinPayResponse prePay(Integer yid, Double capital, Double giveFee,
@@ -104,7 +108,8 @@ public class WeixinPayServiceImpl implements WeixinPayService {
                 attach, appId, mchId, key);
         ScanPayResData scanPayResData = unifiedOrder(wxOrder);
 
-        return createWXPayResponse(scanPayResData, outTradeNo);
+        assert scanPayResData != null;
+        return createWxPayResponse(scanPayResData, outTradeNo);
 
     }
 
@@ -119,11 +124,11 @@ public class WeixinPayServiceImpl implements WeixinPayService {
 
     @Override
     public Boolean callback(String reqXml) {
-        Boolean flag = false;
+        boolean flag = false;
 
         Boolean checkFlag = checkParam(reqXml);
         if (checkFlag) {
-            ScanPayResData scanPayResData = (ScanPayResData) XstreamUtil.xmlToObject(reqXml, ScanPayResData.class);
+            ScanPayResData scanPayResData = XstreamUtil.xmlToObject(reqXml, ScanPayResData.class);
             try {
                 thirdPayService.insertWeixinpay(scanPayResData);
             } catch (Exception e) {
@@ -133,14 +138,8 @@ public class WeixinPayServiceImpl implements WeixinPayService {
             log.info("attach : " + scanPayResData.getAttach());
             String[] attach = scanPayResData.getAttach().split("_");
 
-            // 用户Id
-            Integer yid = Integer.parseInt(attach[0]);
-            // 本金
-            Double capital = Double.parseDouble(attach[1]);
-            //赠费
-            Double giveFee = Double.parseDouble(attach[2]);
             //充值类型
-            Integer rechargeType = Integer.parseInt(attach[3]);
+            int rechargeType = Integer.parseInt(attach[3]);
             //充值流水好
             Integer rechargeId = Integer.parseInt(attach[4]);
             String tradeNo = scanPayResData.getTransactionId();
@@ -161,15 +160,13 @@ public class WeixinPayServiceImpl implements WeixinPayService {
     private ScanPayResData unifiedOrder(WeixinXmlPayRequest request) {
         log.info("下发微信订单--订单号：" + request.getOutTradeNo() + "交易金额：" + request.getTotalFee() + "交易时间："
                 + request.getTimeStart());
-        String postDataXML = XstreamUtil.objectToXml(request);
-        log.info("微信统一下单请求xml：" + postDataXML);
+        String postDataXml = XstreamUtil.objectToXml(request);
+        log.info("微信统一下单请求xml：" + postDataXml);
         restTemplate.getMessageConverters().set(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
-        String responseBody = restTemplate.postForObject(unifiedorderApi, postDataXML, String.class);
+        String responseBody = restTemplate.postForObject(unifiedorderApi, postDataXml, String.class);
 
-        try {
-            responseBody = new String(responseBody.getBytes(StringHttpMessageConverter.DEFAULT_CHARSET), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        if (responseBody != null) {
+            responseBody = new String(responseBody.getBytes(StringHttpMessageConverter.DEFAULT_CHARSET), StandardCharsets.UTF_8);
         }
 
         log.info("微信统一下单返回结果：" + responseBody);
@@ -193,7 +190,7 @@ public class WeixinPayServiceImpl implements WeixinPayService {
 
     }
 
-    private WeixinPayResponse createWXPayResponse(ScanPayResData scanPayResData, String outTradeNo) {
+    private WeixinPayResponse createWxPayResponse(ScanPayResData scanPayResData, String outTradeNo) {
         WeixinPayResponse payInfo = new WeixinPayResponse();
 
         payInfo.setNonceStr(scanPayResData.getNonceStr());
@@ -213,11 +210,11 @@ public class WeixinPayServiceImpl implements WeixinPayService {
     /**
      * 查询支付结果
      *
-     * @param payResultRequest
-     * @return
+     * @param payResultRequest 支付结果请求
+     * @return ResponseResult实例
      */
     @Override
-    public ResponseResult payResult(PayResultRequest payResultRequest) {
+    public ResponseResult<?> payResult(PayResultRequest payResultRequest) {
 
         ScanPayQueryReqData scanPayQueryReqData = new ScanPayQueryReqData(null, payResultRequest.getOutTradeNo(),
                 appId, mchId, key);
@@ -240,11 +237,8 @@ public class WeixinPayServiceImpl implements WeixinPayService {
         log.info("微信查询支付状态请求xml：" + postDataXML);
         String responseBody = restTemplate.postForObject(queryApi, postDataXML, String.class);
 
-        try {
-            responseBody = new String(responseBody.getBytes(StringHttpMessageConverter.DEFAULT_CHARSET), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        assert responseBody != null;
+        responseBody = new String(responseBody.getBytes(StringHttpMessageConverter.DEFAULT_CHARSET), StandardCharsets.UTF_8);
 
         log.info("微信查询支付状态返回结果：" + responseBody);
         ScanPayResData scanPayQueryResData = XstreamUtil.xmlToObject(responseBody, ScanPayResData.class);

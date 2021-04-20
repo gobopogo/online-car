@@ -5,9 +5,10 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * 订单统计response
+ * 订单统计结果
  *
- * @date 2018/10/16
+ * @author dongjb
+ * @date 2021/04/20
  */
 @Data
 public class OrderStatisticsResponse {

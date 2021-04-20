@@ -7,30 +7,35 @@ import com.online.taxi.entity.PassengerWallet;
 import com.online.taxi.entity.PassengerWalletRecord;
 import com.online.taxi.service.PassengerWalletService;
 import com.online.taxi.util.BigDecimalUtil;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
 /**
- * @date 2018/8/21
+ * 乘客钱包服务
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @Repository
 @Slf4j
+@RequiredArgsConstructor
 public class PassengerWalletServiceImpl implements PassengerWalletService {
 
-    @Autowired
-    private PassengerWalletDao passengerWalletDao;
+    @NonNull
+    private final PassengerWalletDao passengerWalletDao;
 
-    @Autowired
-    private PassengerWalletRecordDao walletRecordDao;
+    @NonNull
+    private final PassengerWalletRecordDao walletRecordDao;
 
     @Override
-    public PassengerWalletRecord createWalletRecord(Integer yid , Double capital, Double giveFee,
-                                                    Integer payType, Integer tradeType , String description ,
-                                                    Integer orderId,Integer payStatus,String createUser){
+    public PassengerWalletRecord createWalletRecord(Integer yid, Double capital, Double giveFee,
+                                                    Integer payType, Integer tradeType, String description,
+                                                    Integer orderId, Integer payStatus, String createUser) {
         Date nowDate = new Date();
         PassengerWalletRecord passengerWalletRecord = new PassengerWalletRecord();
         passengerWalletRecord.setPassengerInfoId(yid);
@@ -38,10 +43,10 @@ public class PassengerWalletServiceImpl implements PassengerWalletService {
         passengerWalletRecord.setPayCapital(capital);
         passengerWalletRecord.setPayGiveFee(giveFee);
 
-        Double sumMoney = BigDecimalUtil.add(capital.toString(),giveFee.toString());
-        Double discount = 0d;
-        if (sumMoney.compareTo(PayConst.ZERO) > 0){
-            discount = BigDecimalUtil.div(giveFee.toString(),sumMoney.toString(),2);
+        Double sumMoney = BigDecimalUtil.add(capital.toString(), giveFee.toString());
+        double discount = 0d;
+        if (sumMoney.compareTo(PayConst.ZERO) > 0) {
+            discount = BigDecimalUtil.div(giveFee.toString(), sumMoney.toString(), 2);
         }
 
         passengerWalletRecord.setRechargeDiscount(discount);
@@ -60,7 +65,7 @@ public class PassengerWalletServiceImpl implements PassengerWalletService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int handleCallBack(int rechargeType, Integer rechargeId,String tradeNo) {
+    public void handleCallBack(int rechargeType, Integer rechargeId, String tradeNo) {
 
         // 查询充值记录
         PassengerWalletRecord passengerWalletRecord = walletRecordDao.selectByPrimaryKey(rechargeId);
@@ -70,29 +75,28 @@ public class PassengerWalletServiceImpl implements PassengerWalletService {
         Integer passengerInfoId = passengerWalletRecord.getPassengerInfoId();
         PassengerWallet passengerWallet = passengerWalletDao.selectByPassengerInfoId(passengerInfoId);
         //更新乘客钱包
-        if (null == passengerWallet){
-            passengerWallet = initPassengerWallet(passengerInfoId,capital,giveFee);
+        if (null == passengerWallet) {
+            initPassengerWallet(passengerInfoId, capital, giveFee);
         }
         //更改流水记录
         passengerWalletRecord.setPayStatus(PayEnum.PAID.getCode());
         passengerWalletRecord.setTransactionId(tradeNo);
         walletRecordDao.updateByPrimaryKeySelective(passengerWalletRecord);
         //如果是充值，并消费，产生消费记录
-        if(rechargeType == RechargeTypeEnum.CONSUME.getCode()){
+        if (rechargeType == RechargeTypeEnum.CONSUME.getCode()) {
 
-            PassengerWalletRecord consume = createWalletRecord(passengerInfoId , capital, giveFee,
-                    PayTypeEnum.BALANCE.getCode(), TradeTypeEnum.CONSUME.getCode() ,"订单消费" ,
-                    passengerWalletRecord.getOrderId(),PayEnum.PAID.getCode(),"");
-        }else {
-            int row = alterPassengerWalletPrice(passengerInfoId, capital, giveFee, ChangeStatusEnum.ADD.getCode());
+            createWalletRecord(passengerInfoId, capital, giveFee,
+                    PayTypeEnum.BALANCE.getCode(), TradeTypeEnum.CONSUME.getCode(), "订单消费",
+                    passengerWalletRecord.getOrderId(), PayEnum.PAID.getCode(), "");
+        } else {
+            alterPassengerWalletPrice(passengerInfoId, capital, giveFee, ChangeStatusEnum.ADD.getCode());
 
         }
 
-        return 0;
     }
 
     @Override
-    public PassengerWallet initPassengerWallet(Integer passengerInfoId,Double capital,Double giveFee){
+    public PassengerWallet initPassengerWallet(Integer passengerInfoId, Double capital, Double giveFee) {
         Date nowTime = new Date();
         PassengerWallet passengerWallet = new PassengerWallet();
         passengerWallet.setPassengerInfoId(passengerInfoId);
@@ -107,7 +111,7 @@ public class PassengerWalletServiceImpl implements PassengerWalletService {
     }
 
     @Override
-    public int alterPassengerWalletPrice(Integer yid, Double capital, Double giveFee , int changeStatus) {
+    public void alterPassengerWalletPrice(Integer yid, Double capital, Double giveFee, int changeStatus) {
         int count = 0;
         int maxCount = 100;
         while (count <= maxCount) {
@@ -116,8 +120,8 @@ public class PassengerWalletServiceImpl implements PassengerWalletService {
             Double capitalOld = passengerWallet.getCapital();
             Double giveFeeOld = passengerWallet.getGiveFee();
 
-            Double capitalNew;
-            Double giveFeeNew;
+            double capitalNew;
+            double giveFeeNew;
             if (changeStatus == ChangeStatusEnum.ADD.getCode()) {
                 capitalNew = BigDecimalUtil.add(capitalOld.toString(), capital.toString());
                 giveFeeNew = BigDecimalUtil.add(giveFeeOld.toString(), giveFee.toString());
@@ -125,7 +129,7 @@ public class PassengerWalletServiceImpl implements PassengerWalletService {
                 capitalNew = BigDecimalUtil.sub(capitalOld.toString(), capital.toString());
                 giveFeeNew = BigDecimalUtil.sub(giveFeeOld.toString(), giveFee.toString());
             } else {
-                return -1;
+                return;
             }
             int row = passengerWalletDao.updateBalanceBypassengerInfoId(yid, capitalNew, giveFeeNew, capitalOld, giveFeeOld);
             if (row == 0) {
@@ -135,13 +139,11 @@ public class PassengerWalletServiceImpl implements PassengerWalletService {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                continue;
             } else {
                 break;
             }
 
         }
-        return 1;
 
     }
 
@@ -150,23 +152,22 @@ public class PassengerWalletServiceImpl implements PassengerWalletService {
 
         PassengerWallet passengerWallet = passengerWalletDao.selectByPassengerInfoId(yid);
 
-        if (null != passengerWallet){
+        if (null != passengerWallet) {
 
             Double capitalOld = passengerWallet.getCapital();
             Double giveFeeOld = passengerWallet.getGiveFee();
-            Double capitalNew = BigDecimalUtil.add(capitalOld.toString(),freezeCapital.toString());
-            Double giveFeeNew = BigDecimalUtil.add(giveFeeOld.toString(),freezeGiveFee.toString());
+            double capitalNew = BigDecimalUtil.add(capitalOld.toString(), freezeCapital.toString());
+            double giveFeeNew = BigDecimalUtil.add(giveFeeOld.toString(), freezeGiveFee.toString());
 
             Double freezeCapitalOld = passengerWallet.getFreezeCapital();
             Double freezeGiveFeeOld = passengerWallet.getFreezeGiveFee();
-            Double freezeCapitalNew = BigDecimalUtil.sub(freezeCapitalOld.toString(),freezeCapital.toString());
-            Double freezeGiveFeeNew = BigDecimalUtil.sub(freezeGiveFeeOld.toString(),freezeGiveFee.toString());
+            double freezeCapitalNew = BigDecimalUtil.sub(freezeCapitalOld.toString(), freezeCapital.toString());
+            double freezeGiveFeeNew = BigDecimalUtil.sub(freezeGiveFeeOld.toString(), freezeGiveFee.toString());
 
 
-            int row = passengerWalletDao.unfreezeBalanceByPassengerInfoId(yid,capitalNew,giveFeeNew,capitalOld,giveFeeOld,freezeCapitalNew,freezeGiveFeeNew,freezeCapitalOld,freezeGiveFeeOld);
-            return row;
+            return passengerWalletDao.unfreezeBalanceByPassengerInfoId(yid, capitalNew, giveFeeNew, capitalOld, giveFeeOld, freezeCapitalNew, freezeGiveFeeNew, freezeCapitalOld, freezeGiveFeeOld);
 
-        }else{
+        } else {
             return 0;
         }
 

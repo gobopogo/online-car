@@ -6,12 +6,13 @@ import lombok.EqualsAndHashCode;
 import java.util.Date;
 
 /**
- * carRequest
+ * 车辆统计申请
  *
- * @date 2018/10/15
+ * @author dongjb
+ * @date 2021/04/20
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class CarRequest {
 
     /**
@@ -25,7 +26,8 @@ public class CarRequest {
      */
     private String period;
 
-    /**p
+    /**
+     * p
      * 开始时间
      */
     private String begin;

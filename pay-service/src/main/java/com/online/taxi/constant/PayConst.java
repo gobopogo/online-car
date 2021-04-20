@@ -1,13 +1,14 @@
 package com.online.taxi.constant;
 
 /**
- * @date 2018/8/17
+ * 支付常量
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 public class PayConst {
 
     public static final String UNDER_LINE = "_";
-
-    public static final String CHARSET = "UTF-8";
 
     public static final String RETURN_CODE_SUCCESS = "SUCCESS";
 
@@ -27,7 +28,7 @@ public class PayConst {
     public static final String ERROR_ORDER_CLOSED = "ORDERCLOSED";
 
     /**
-     *  支付宝支付成功
+     * 支付宝支付成功
      */
     public static final String TRADE_SUCCESS = "TRADE_SUCCESS";
 

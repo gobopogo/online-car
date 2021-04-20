@@ -3,15 +3,14 @@ package com.online.taxi.request;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
-
 /**
- * 功能描述
+ * 用户统计申请对象
  *
- * @date 2018/10/15
+ * @author dongjb
+ * @date 2021/04/20
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class UserRequest {
     /**
      * 查看类目

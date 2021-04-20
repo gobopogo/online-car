@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 功能描述
+ * 用户统计mapper
  *
- * @date 2018/10/15
+ * @author dongjb
+ * @date 2021/04/20
  */
 @Mapper
 @Service
@@ -18,22 +19,25 @@ public interface UserStatisticsMapper {
 
     /**
      * 注册用户数
-     * @param param
-     * @return
+     *
+     * @param param 申请参数
+     * @return 结果列表
      */
     List<UserResponse> selectRegUserStatistics(Map<String, Object> param);
 
     /**
      * 下单用户数
-     * @param param
-     * @return
+     *
+     * @param param 申请参数
+     * @return 结果列表
      */
     List<UserResponse> placeAnOrderUserNumber(Map<String, Object> param);
 
     /**
      * 活跃用户数
-     * @param param
-     * @return
+     *
+     * @param param 申请参数
+     * @return 结果列表
      */
     List<UserResponse> activeUserNumber(Map<String, Object> param);
 }

@@ -1,9 +1,19 @@
 package com.online.taxi.service;
 
 /**
- * @date 2018/10/15
+ * 公共支付服务
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 public interface CommonPayService {
 
-	String createDescription(Double capital,Double giveFee,String prefix);
+    /**
+     * 创建支付描述
+     * @param capital 本金
+     * @param giveFee 赠额
+     * @param prefix 公共描述
+     * @return 支付描述
+     */
+    String createDescription(Double capital, Double giveFee, String prefix);
 }

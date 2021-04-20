@@ -20,11 +20,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * xml工具
+ *
+ * @author dongjb
+ * @date 2021/04/20
  */
 public class XstreamUtil {
 
     /**
      * 将bean转换为xml
+     *
      * @param obj 转换的bean
      * @return bean转换为xml
      */
@@ -38,16 +43,17 @@ public class XstreamUtil {
 
     /**
      * 将xml转换为bean
+     *
      * @param xml 要转换为bean的xml
      * @param cls bean对应的Class
      * @return xml转换为bean
      */
-    public static <T> T  xmlToObject(String xml, Class<T> cls){
+    public static <T> T xmlToObject(String xml, Class<T> cls) {
 
         XStream xstream = new XStream(new DomDriver());
         xstream.processAnnotations(cls);
         xstream.ignoreUnknownElements();
-        return (T)xstream.fromXML(xml);
+        return (T) xstream.fromXML(xml);
     }
 
     public static Map<String, Object> getMapFromXML(String xmlString) throws ParserConfigurationException, IOException, SAXException {
@@ -55,10 +61,10 @@ public class XstreamUtil {
         //这里用Dom的方式解析回包的最主要目的是防止API新增回包字段
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        InputStream is ;
-        if (StringUtils.isNotBlank(xmlString)){
-            is =  new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
-        }else {
+        InputStream is;
+        if (StringUtils.isNotBlank(xmlString)) {
+            is = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+        } else {
             return null;
         }
 
@@ -68,11 +74,11 @@ public class XstreamUtil {
         NodeList allNodes = document.getFirstChild().getChildNodes();
         Node node;
         Map<String, Object> map = new HashMap<>(allNodes.getLength());
-        int i=0;
+        int i = 0;
         while (i < allNodes.getLength()) {
             node = allNodes.item(i);
-            if(node instanceof Element){
-                map.put(node.getNodeName(),node.getTextContent());
+            if (node instanceof Element) {
+                map.put(node.getNodeName(), node.getTextContent());
             }
             i++;
         }

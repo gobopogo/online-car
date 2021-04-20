@@ -6,31 +6,35 @@ import com.online.taxi.entity.PassengerWalletRecord;
 import com.online.taxi.service.CommonPayService;
 import com.online.taxi.service.PassengerWalletService;
 import com.online.taxi.service.RechargeService;
-import com.online.taxi.util.BigDecimalUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
- * @date 2018/10/22
+ * 平台充值服务
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @Service
+@RequiredArgsConstructor
 public class RechargeServiceImpl implements RechargeService {
 
-    @Autowired
-    private PassengerWalletService passengerWalletService;
+    @NonNull
+    private final PassengerWalletService passengerWalletService;
 
-    @Autowired
-    private CommonPayService commonPayService;
+    @NonNull
+    private final CommonPayService commonPayService;
 
     @Override
-    public ResponseResult bossRecharge(Integer yid, Double capital, Double giveFee,String description,String createUser) {
+    public ResponseResult<?> bossRecharge(Integer yid, Double capital, Double giveFee, String description, String createUser) {
 
-        description = commonPayService.createDescription(capital,giveFee,description);
-        PassengerWalletRecord passengerWalletRecord = passengerWalletService.createWalletRecord(yid,capital,giveFee,
-                PayTypeEnum.SYSTEM.getCode(), TradeTypeEnum.RECHARGE.getCode(),description,
-                null, PayEnum.UN_PAID.getCode(),createUser);
+        description = commonPayService.createDescription(capital, giveFee, description);
+        PassengerWalletRecord passengerWalletRecord = passengerWalletService.createWalletRecord(yid, capital, giveFee,
+                PayTypeEnum.SYSTEM.getCode(), TradeTypeEnum.RECHARGE.getCode(), description,
+                null, PayEnum.UN_PAID.getCode(), createUser);
 
-        passengerWalletService.handleCallBack(RechargeTypeEnum.CHARGE.getCode(),passengerWalletRecord.getId(),"");
+        passengerWalletService.handleCallBack(RechargeTypeEnum.CHARGE.getCode(), passengerWalletRecord.getId(), "");
         return ResponseResult.success("");
     }
 }

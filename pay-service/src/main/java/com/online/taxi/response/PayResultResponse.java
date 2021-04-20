@@ -3,7 +3,10 @@ package com.online.taxi.response;
 import lombok.Data;
 
 /**
- * @date 2018/8/30
+ * 支付结果
+ *
+ * @author dongjb
+ * @date 2021/02/20
  */
 @Data
 public class PayResultResponse {

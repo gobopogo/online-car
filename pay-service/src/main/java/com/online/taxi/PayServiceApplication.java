@@ -14,6 +14,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
+ * 主程序
  */
 @SpringBootApplication
 @MapperScan("com.online.taxi.mapper")

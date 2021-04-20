@@ -11,55 +11,58 @@ import java.util.Map;
 
 /**
  * 请求被扫支付API需要提交的数据
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @XStreamAlias("xml")
 @Data
 public class WeixinXmlPayRequest {
 
     @XStreamAlias("appid")
-    private String appid ;
+    private String appid;
 
     @XStreamAlias("mch_id")
-    private String mchId ;
+    private String mchId;
 
     @XStreamAlias("device_info")
-    private String deviceInfo ;
+    private String deviceInfo;
 
     @XStreamAlias("nonce_str")
-    private String nonceStr ;
+    private String nonceStr;
 
     @XStreamAlias("sign")
-    private String sign ;
+    private String sign;
 
     @XStreamAlias("body")
-    private String body ;
+    private String body;
 
     @XStreamAlias("attach")
-    private String attach ;
+    private String attach;
 
     @XStreamAlias("out_trade_no")
-    private String outTradeNo ;
+    private String outTradeNo;
 
     @XStreamAlias("total_fee")
-    private int totalFee ;
+    private int totalFee;
 
     @XStreamAlias("spbill_create_ip")
-    private String spbillCreateIp ;
+    private String spbillCreateIp;
 
     @XStreamAlias("time_start")
     private String timeStart;
 
     @XStreamAlias("time_expire")
-    private String timeExpire ;
+    private String timeExpire;
 
     @XStreamAlias("goods_tag")
-    private String goodsTag ;
+    private String goodsTag;
 
     @XStreamAlias("auth_code")
-    private String authCode ;
+    private String authCode;
 
     @XStreamAlias("trade_type")
-    private String tradeType ="JSAPI";
+    private String tradeType = "JSAPI";
 
     @XStreamAlias("notify_url")
     private String notifyUrl = "";
@@ -69,7 +72,7 @@ public class WeixinXmlPayRequest {
 
     /**
      * @param body           要支付的商品的描述信息，用户会在支付成功页面里看到这个信息
-     * @param attach  order 普通订单  deposit 押金
+     * @param attach         order 普通订单  deposit 押金
      * @param outTradeNo     商户系统内部的订单号,32个字符内可包含字母, 确保在商户系统唯一
      * @param totalFee       订单总金额，单位为“分”，只能整数
      * @param spBillCreateIP 订单生成的机器IP
@@ -79,10 +82,10 @@ public class WeixinXmlPayRequest {
                                String notify_url, String trade_type, String openid, String attach,
                                String appId, String mchId, String key) {
 
-    	setAppid(appId);
-    	//微信支付分配的商户号ID（开通公众号的微信支付功能之后可以获取到）
-    	setMchId(mchId);
-    	
+        setAppid(appId);
+        //微信支付分配的商户号ID（开通公众号的微信支付功能之后可以获取到）
+        setMchId(mchId);
+
         //要支付的商品的描述信息，用户会在支付成功页面里看到这个信息
         setBody(body);
 
@@ -104,7 +107,7 @@ public class WeixinXmlPayRequest {
         setNonceStr(RandomStringGenerator.getRandomStringByLength(32));
 
         //根据API给的签名规则进行签名
-        String sign = Signature.getSign(toMap(),key);
+        String sign = Signature.getSign(toMap(), key);
         setSign(sign);
 
     }
@@ -119,7 +122,7 @@ public class WeixinXmlPayRequest {
                 obj = field.get(this);
                 if (obj != null) {
                     XStreamAlias xStreamAlias = field.getAnnotation(XStreamAlias.class);
-                    if(null != xStreamAlias){
+                    if (null != xStreamAlias) {
                         map.put(xStreamAlias.value(), obj);
                     }
 

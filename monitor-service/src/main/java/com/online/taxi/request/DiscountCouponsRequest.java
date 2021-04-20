@@ -5,12 +5,13 @@ import lombok.EqualsAndHashCode;
 
 
 /**
- * 优惠券request
+ * 优惠券统计申请对象
  *
- * @date 2018/10/15
+ * @author dongjb
+ * @date 2020/04/20
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class DiscountCouponsRequest {
 
 

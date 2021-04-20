@@ -4,8 +4,9 @@ import com.online.taxi.dto.ResponseResult;
 import com.online.taxi.request.PayRequest;
 import com.online.taxi.request.PayResultRequest;
 import com.online.taxi.service.AlipayService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,28 +14,32 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * 支付宝支付
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @RestController
 @RequestMapping("/alipay")
 @Slf4j
+@RequiredArgsConstructor
 public class AlipayController {
 
-    @Autowired
-    private AlipayService alipayService;
+    @NonNull
+    private final AlipayService alipayService;
 
-    @RequestMapping(value = "/pretreatment" , method = RequestMethod.POST)
-    public ResponseResult pretreatment(@RequestBody PayRequest payRequest){
+    @RequestMapping(value = "/pretreatment", method = RequestMethod.POST)
+    public ResponseResult<?> pretreatment(@RequestBody PayRequest payRequest) {
         Integer yid = payRequest.getYid();
         Double capital = payRequest.getCapital();
         Double giveFee = payRequest.getGiveFee();
         String source = payRequest.getSource();
         Integer rechargeType = payRequest.getRechargeType();
         Integer orderId = payRequest.getOrderId();
-        String data = alipayService.prePay(yid,capital,giveFee,source,rechargeType,orderId);
+        String data = alipayService.prePay(yid, capital, giveFee, source, rechargeType, orderId);
         return ResponseResult.success(data);
     }
 
@@ -55,31 +60,29 @@ public class AlipayController {
      * PS:（针对异步通知）程序执行完后必须打印输出“success”（不包含引号）。如果商户反馈给支付宝的字符不是success这7个字符，
      * 支付宝服务器会不断重发通知，直到超过24小时22分钟。
      * 一般情况下，25小时以内完成8次通知（通知的间隔频率一般是：4m,10m,10m,1h,2h,6h,15h）；
-     *
      */
     @RequestMapping(value = "/callback")
     public void callback(HttpServletRequest request, HttpServletResponse response) {
         String returnStr = "failure";
 
         // 获取支付宝POST过来反馈信息
-        Map<String, String> params = new HashMap<String, String>();
-        Map requestParams = request.getParameterMap();
-        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
-            String name = (String) iter.next();
-            String[] values = (String[]) requestParams.get(name);
+        Map<String, String> params = new HashMap<>(16);
+        Map<String, String[]> requestParams = request.getParameterMap();
+        for (String o : requestParams.keySet()) {
+            String[] values = requestParams.get(o);
             String valueStr = "";
             for (int i = 0; i < values.length; i++) {
                 valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
             }
 
-            params.put(name, valueStr);
+            params.put(o, valueStr);
         }
-        log.info("支付宝回调：" + params.toString());
+        log.info("支付宝回调：" + params);
         // 调用SDK验证签名
         boolean flag = alipayService.checkAlipaySign(params);
         // 验签成功
         if (flag) {
-            boolean localflag = false;
+            boolean localflag;
             try {
                 // 处理支付成功逻辑
                 localflag = alipayService.callback(params);
@@ -106,7 +109,7 @@ public class AlipayController {
     }
 
     @GetMapping("/payResult")
-    public ResponseResult payResult(PayResultRequest payResultRequest){
-        return alipayService.payResult(payResultRequest.getOrderId(),payResultRequest.getOutTradeNo());
+    public ResponseResult<?> payResult(PayResultRequest payResultRequest) {
+        return alipayService.payResult(payResultRequest.getOrderId(), payResultRequest.getOutTradeNo());
     }
 }

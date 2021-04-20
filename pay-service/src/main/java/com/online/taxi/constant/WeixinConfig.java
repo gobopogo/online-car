@@ -1,7 +1,10 @@
 package com.online.taxi.constant;
 
 /**
- * @date 2018/8/19
+ * 微信配置
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 public class WeixinConfig {
 

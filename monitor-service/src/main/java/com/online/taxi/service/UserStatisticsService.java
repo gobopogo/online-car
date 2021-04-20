@@ -6,14 +6,16 @@ import com.online.taxi.request.UserRequest;
 /**
  * 用户统计查询
  *
- * @date 2018/10/15
+ * @author dongjb
+ * @date 2021/04/20
  */
 public interface UserStatisticsService {
 
     /**
      * 用户统计
-     * @param request
-     * @return
+     *
+     * @param request 申请对象
+     * @return ResponseResult实例
      */
-    ResponseResult userStatistics(UserRequest request);
+    ResponseResult<?> userStatistics(UserRequest request);
 }

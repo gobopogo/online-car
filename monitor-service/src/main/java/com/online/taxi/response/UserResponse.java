@@ -3,9 +3,10 @@ package com.online.taxi.response;
 import lombok.Data;
 
 /**
- * 功能描述
+ * 用户统计结果
  *
- * @date 2018/10/15
+ * @author dongjb
+ * @date 2021/04/20
  */
 @Data
 public class UserResponse {

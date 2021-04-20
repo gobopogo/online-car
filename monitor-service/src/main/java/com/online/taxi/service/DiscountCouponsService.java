@@ -4,16 +4,18 @@ import com.online.taxi.dto.ResponseResult;
 import com.online.taxi.request.DiscountCouponsRequest;
 
 /**
- * 功能描述
+ * 优惠券统计服务
  *
- * @date 2018/10/17
+ * @author dongjb
+ * @date 2020/04/20
  */
 public interface DiscountCouponsService {
 
     /**
      * 优惠券统计
-     * @param request
-     * @return
+     *
+     * @param request 优惠券统计申请对象
+     * @return ResponseResult实例
      */
-    ResponseResult DiscountCouponsStatistics(DiscountCouponsRequest request);
+    ResponseResult<?> discountCouponsStatistics(DiscountCouponsRequest request);
 }

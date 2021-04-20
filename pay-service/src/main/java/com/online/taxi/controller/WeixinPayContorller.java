@@ -6,30 +6,35 @@ import com.online.taxi.request.PayRequest;
 import com.online.taxi.request.PayResultRequest;
 import com.online.taxi.response.WeixinPayResponse;
 import com.online.taxi.service.WeixinPayService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * @date 2018/8/16
+ * 微信支付
+ *
+ * @author dongjb
+ * @date 2021/04/19
  */
 @RestController
 @RequestMapping("/weixinPay")
 @Slf4j
+@RequiredArgsConstructor
 public class WeixinPayContorller {
 
-    @Autowired
-    private WeixinPayService weixinPayService;
+    @NonNull
+    private final WeixinPayService weixinPayService;
 
     @PostMapping(value = "/pretreatment")
-    public ResponseResult pretreatment(@RequestBody PayRequest payRequest){
+    public ResponseResult<?> pretreatment(@RequestBody PayRequest payRequest) {
         Integer yid = payRequest.getYid();
         Double capital = payRequest.getCapital();
         Double giveFee = payRequest.getGiveFee();
         String source = payRequest.getSource();
         Integer rechargeType = payRequest.getRechargeType();
         Integer orderId = payRequest.getOrderId();
-        WeixinPayResponse response = weixinPayService.prePay(yid,capital,giveFee,source,rechargeType,orderId);
+        WeixinPayResponse response = weixinPayService.prePay(yid, capital, giveFee, source, rechargeType, orderId);
         return ResponseResult.success(response);
 
     }
@@ -45,9 +50,9 @@ public class WeixinPayContorller {
     public String handlePayResult(@RequestBody String reqXml) {
 
         try {
-            log.info("微信回调："+reqXml);
+            log.info("微信回调：" + reqXml);
             Boolean flag = weixinPayService.callback(reqXml);
-            if (!flag){
+            if (!flag) {
                 log.info("微信回调失败");
                 return WeixinConfig.RESPONSE_FAIL;
             }
@@ -61,7 +66,7 @@ public class WeixinPayContorller {
     }
 
     @GetMapping("/payResult")
-    public ResponseResult payResult(PayResultRequest payResultRequest){
+    public ResponseResult payResult(PayResultRequest payResultRequest) {
         return weixinPayService.payResult(payResultRequest);
     }
 
