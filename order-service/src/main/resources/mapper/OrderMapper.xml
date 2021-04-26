@@ -546,7 +546,7 @@
     </insert>
     <update id="batchUpdate" parameterType="java.util.Map">
     UPDATE tbl_order set invoice_type =#{invoiceType,jdbcType=INTEGER} where id in (${orderIds})
-  </update>
+    </update>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.online.taxi.entity.Order">
         <!--

@@ -54,8 +54,6 @@ public class OrderGrabServiceImpl implements OrderGrabService {
     private static final String GRAB_FAILURE = "抢单失败";
     private static final String DRIVER_WORK_STATUS_NOT_DISPATCH_VEHICLE = "司机工作状态不是出车";
 
-    private final String lockKey = "lock_order:";
-
     @NonNull
     private final RedisTemplate redisTemplate;
 
@@ -75,7 +73,7 @@ public class OrderGrabServiceImpl implements OrderGrabService {
     private final OtherInterfaceTask otherInterfaceTask;
 
     @Override
-    public ResponseResult grab(OrderDtoRequest orderDtoRequest) {
+    public ResponseResult<?> grab(OrderDtoRequest orderDtoRequest) {
         Order orderRequest = new Order();
         BeanUtils.copyProperties(orderDtoRequest, orderRequest);
         log.info("orderRequest={}", JSONObject.fromObject(orderRequest).toString());
@@ -105,7 +103,7 @@ public class OrderGrabServiceImpl implements OrderGrabService {
             }
             String driverPhone = driverInfo.getPhoneNumber();
 
-            ResponseResult responseResult = orderStatusProcessing(orderId, driverInfo.getWorkStatus(), driverId, driverInfo.getCarId(), driverPhone, order.getOrderStartTime(), cityCode, carType, orderDtoRequest);
+            ResponseResult<?> responseResult = orderStatusProcessing(orderId, driverInfo.getWorkStatus(), driverId, driverInfo.getCarId(), driverPhone, order.getOrderStartTime(), cityCode, carType, orderDtoRequest);
             if (responseResult.getCode() == BusinessInterfaceStatus.SUCCESS.getCode()) {
                 return ResponseResult.success();
             } else {
@@ -119,17 +117,18 @@ public class OrderGrabServiceImpl implements OrderGrabService {
      * 订单状态处理
      */
     @Transactional(rollbackFor = Exception.class)
-    public ResponseResult orderStatusProcessing(Integer orderId, Integer workStatus, Integer driverId, Integer carId, String driverPhone, Date startTime, Integer cityCode, Integer carType, OrderDtoRequest orderDtoRequest) {
-        ResponseResult responseResult;
+    public ResponseResult<?> orderStatusProcessing(Integer orderId, Integer workStatus, Integer driverId, Integer carId, String driverPhone, Date startTime, Integer cityCode, Integer carType, OrderDtoRequest orderDtoRequest) {
+        ResponseResult<?> responseResult;
         JSONObject json = new JSONObject();
         Order order = orderMapper.selectByPrimaryKey(orderId);
         if (null != workStatus && workStatus == DriverInfoConst.WORK_START) {
+            String lockKey = "lock_order:";
             String lock = (lockKey + orderId).intern();
             String uuid = UUID.randomUUID().toString();
             BoundValueOperations<String, String> lockRedis;
             lockRedis = redisTemplate.boundValueOps(lock);
             Boolean lockBoolean = lockRedis.setIfAbsent(uuid);
-            if (lockBoolean) {
+            if (lockBoolean != null && lockBoolean) {
                 lockRedis.expire(15L, TimeUnit.SECONDS);
             } else {
                 log.error(GRAB_FAILURE);

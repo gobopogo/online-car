@@ -18,5 +18,5 @@ public interface OrderGrabService {
      * @return 返回对象
      * @throws Exception 异常
      */
-    ResponseResult grab(OrderDtoRequest orderRequest) throws Exception;
+    ResponseResult<?> grab(OrderDtoRequest orderRequest) throws Exception;
 }
