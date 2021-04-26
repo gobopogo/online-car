@@ -60,7 +60,7 @@ public class OrderRequestTask {
      * @param orderRequest 订单请求对象
      * @return 返回结果
      */
-    public ResponseResult checkBaseInfo(OrderDtoRequest orderRequest) {
+    public ResponseResult<?> checkBaseInfo(OrderDtoRequest orderRequest) {
         City city = cityMapper.selectByPrimaryKey(orderRequest.getCityCode());
         if (null == city) {
             return ResponseResult.fail(OrderEnum.CITIES_DON_EXIST.getCode(), OrderEnum.CITIES_DON_EXIST.getValue());
@@ -108,8 +108,8 @@ public class OrderRequestTask {
      * @param newOrder 新订单
      * @return 返回对象
      */
-    public ResponseResult phoneUnbindAndInsertOrderPoint(Integer status, Order newOrder, Integer cancel) {
-        ResponseResult responseResult;
+    public ResponseResult<?> phoneUnbindAndInsertOrderPoint(Integer status, Order newOrder, Integer cancel) {
+        ResponseResult<?> responseResult;
         if (null != status) {
             if (OrderStatusEnum.STATUS_DRIVER_TRAVEL_END.getCode() == status) {
                 OrderRuleMirror orderRuleMirror = orderRuleMirrorMapper.selectByPrimaryKey(newOrder.getId());

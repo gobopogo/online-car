@@ -91,10 +91,10 @@ public class OrderServiceImpl implements OrderService {
      * @throws Exception 异常
      */
     @Override
-    public ResponseResult<OrderPrice> forecastOrderCreate(OrderDtoRequest orderDtoRequest) throws Exception {
+    public ResponseResult<?> forecastOrderCreate(OrderDtoRequest orderDtoRequest) throws Exception {
         log.info("orderDtoRequest={}", orderDtoRequest);
         OrderPrice orderPrice = new OrderPrice();
-        ResponseResult responseResult;
+        ResponseResult<?> responseResult;
         if (null == orderDtoRequest.getOrderId()) {
             if (OrderServiceTypeEnum.CHARTERED_CAR.getCode() != orderDtoRequest.getServiceTypeId() && OrderServiceTypeEnum.THROUGHOUT_THE_DAY.getCode() != orderDtoRequest.getServiceTypeId()) {
                 try {
@@ -126,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
                 return responseResult;
             }
             Rule rule = RestTemplateHepler.parse(responseResult, Rule.class);
-            log.info("Rule1{}" + rule);
+            log.info("Rule1{}" , rule);
             try {
                 responseResult = createOrderAndOrderRuleMirror(orderDtoRequest, rule);
                 if (BusinessInterfaceStatus.SUCCESS.getCode() != responseResult.getCode()) {
@@ -172,8 +172,8 @@ public class OrderServiceImpl implements OrderService {
      * @return 返回对象
      * @throws Exception 异常
      */
-    public ResponseResult createOrderAndOrderRuleMirror(OrderDtoRequest orderDtoRequest, Rule rule) throws Exception {
-        ResponseResult responseResult;
+    public ResponseResult<?> createOrderAndOrderRuleMirror(OrderDtoRequest orderDtoRequest, Rule rule) throws Exception {
+        ResponseResult<?> responseResult;
         Integer orderId;
         if (OrderServiceTypeEnum.CHARTERED_CAR.getCode() == orderDtoRequest.getServiceTypeId() || OrderServiceTypeEnum.THROUGHOUT_THE_DAY.getCode() == orderDtoRequest.getServiceTypeId()) {
             orderDtoRequest.setEndAddress("-");
@@ -196,7 +196,7 @@ public class OrderServiceImpl implements OrderService {
         } else {
             return responseResult;
         }
-        return responseResult.setData(orderId);
+        return ResponseResult.success(orderId);
     }
 
     /**
@@ -205,7 +205,7 @@ public class OrderServiceImpl implements OrderService {
      * @param orderDtoRequest 订单申请对象
      * @return 返回对象
      */
-    private ResponseResult createOrder(OrderDtoRequest orderDtoRequest) {
+    private ResponseResult<?> createOrder(OrderDtoRequest orderDtoRequest) {
         if (!StringUtils.isEmpty(orderDtoRequest.getPassengerInfoId().toString())) {
             PassengerInfo passengerInfo = passengerInfoMapper.selectByPrimaryKey(orderDtoRequest.getPassengerInfoId());
             if (passengerInfo == null) {
@@ -254,8 +254,8 @@ public class OrderServiceImpl implements OrderService {
      * @return 返回对象
      */
     @Override
-    public ResponseResult callCar(OrderDtoRequest orderDtoRequest) throws Exception {
-        ResponseResult responseResult;
+    public ResponseResult<?> callCar(OrderDtoRequest orderDtoRequest) throws Exception {
+        ResponseResult<?> responseResult;
         log.info("OrderRequest={}", orderDtoRequest);
         try {
             Integer orderId = orderDtoRequest.getOrderId();
@@ -334,7 +334,7 @@ public class OrderServiceImpl implements OrderService {
      * @param orderDtoRequest 订单申请对象
      * @return 返回对象
      */
-    public ResponseResult updateOrderServiceAndUserFeature(OrderDtoRequest orderDtoRequest) {
+    public ResponseResult<?> updateOrderServiceAndUserFeature(OrderDtoRequest orderDtoRequest) {
         log.info("OrderRequest={}", orderDtoRequest);
         int i;
         Order newOrder = orderMapper.selectByPrimaryKey(orderDtoRequest.getOrderId());
@@ -353,8 +353,8 @@ public class OrderServiceImpl implements OrderService {
      * @return 返回对象
      */
     @Override
-    public ResponseResult updateOrder(OrderDtoRequest orderDtoRequest, String driverLongitude, String driverLatitude) {
-        ResponseResult responseResult;
+    public ResponseResult<?> updateOrder(OrderDtoRequest orderDtoRequest, String driverLongitude, String driverLatitude) {
+        ResponseResult<?> responseResult;
         int up = 0;
         Order order = new Order();
         BeanUtils.copyProperties(orderDtoRequest, order);
@@ -385,7 +385,7 @@ public class OrderServiceImpl implements OrderService {
                 if (null != orderDtoRequest.getUpdateType()) {
                     up = orderMapper.updateByPrimaryKey(orderDtoRequest);
                 } else {
-                    log.info("order={}" + order);
+                    log.info("order={}" , order);
                     up = orderMapper.updateByPrimaryKeySelective(order);
                 }
             } catch (Exception e) {
@@ -418,13 +418,10 @@ public class OrderServiceImpl implements OrderService {
      * @param order 订单对象
      * @return 返回对象
      */
-    public ResponseResult updateMapInterface(Order order, String driverLongitude, String driverLatitude) {
-        ResponseResult responseResult;
-        Boolean status = false;
+    public ResponseResult<?> updateMapInterface(Order order, String driverLongitude, String driverLatitude) {
+        ResponseResult<?> responseResult;
         //乘客上车，司机开始行程
-        if (OrderStatusEnum.STATUS_DRIVER_TRAVEL_START.getCode() == order.getStatus()) {
-            status = true;
-        }
+        boolean status = OrderStatusEnum.STATUS_DRIVER_TRAVEL_START.getCode() == order.getStatus();
         //订单取消
         if (order.getIsCancel() != null && order.getIsCancel() == OrderEnum.IS_CANCEL.getCode() && OrderStatusEnum.STATUS_PAY_START.getCode() > order.getStatus()) {
             status = true;
@@ -471,7 +468,7 @@ public class OrderServiceImpl implements OrderService {
      * @param orderDtoRequest 订单申请对象
      */
     @Override
-    public ResponseResult<OrderOtherPrice> otherPriceBalance(OrderDtoRequest orderDtoRequest) {
+    public ResponseResult<?> otherPriceBalance(OrderDtoRequest orderDtoRequest) {
         log.info("OrderRequest{}", orderDtoRequest);
         Order orderRequest = new Order();
         BeanUtils.copyProperties(orderDtoRequest, JSONObject.fromObject(orderRequest).toString());
@@ -508,11 +505,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 orderOtherPrice.setOrderId(order.getId());
                 orderOtherPrice.setPassengerId(order.getPassengerInfoId());
-                //if (totalPrice.compareTo(orderRulePrice.getLowestPrice()) == 1 || totalPrice.compareTo(orderRulePrice.getLowestPrice()) == 0) {
                 orderOtherPrice.setTotalPrice(totalPrice);
-                //} else {
-                //    orderOtherPrice.setTotalPrice(orderRulePrice.getLowestPrice());
-                //}
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -528,7 +521,7 @@ public class OrderServiceImpl implements OrderService {
      * @return 返回对象
      */
     @Override
-    public ResponseResult reassignmentOrder(OrderDtoRequest orderDtoRequest) {
+    public ResponseResult<?> reassignmentOrder(OrderDtoRequest orderDtoRequest) {
         log.info("OrderRequest{}", orderDtoRequest);
         try {
             DriverInfo driverInfo = driverInfoMapper.selectByPrimaryKey(orderDtoRequest.getDriverIdNow());
@@ -569,7 +562,7 @@ public class OrderServiceImpl implements OrderService {
             String driverPhone = EncriptUtil.decryptionPhoneNumber(driverInfo.getPhoneNumber());
             String passengerPhone = EncriptUtil.decryptionPhoneNumber(order.getPassengerPhone());
 
-            ResponseResult responseResult = otherInterfaceTask.phoneNumberBind(order.getOrderStartTime(), driverPhone, passengerPhone);
+            ResponseResult<?> responseResult = otherInterfaceTask.phoneNumberBind(order.getOrderStartTime(), driverPhone, passengerPhone);
             if (responseResult.getCode() == BusinessInterfaceStatus.SUCCESS.getCode()) {
                 BoundPhoneDto boundPhoneDto = RestTemplateHepler.parse(responseResult, BoundPhoneDto.class);
                 order.setMappingId(boundPhoneDto.getAxbSubsId());
@@ -577,7 +570,7 @@ public class OrderServiceImpl implements OrderService {
             }
             if (order.getOrderType() == OrderEnum.ORDER_TYPE_OTHER.getCode()) {
                 String otherPhone = EncriptUtil.decryptionPhoneNumber(order.getOtherPhone());
-                ResponseResult otherResponseResult = otherInterfaceTask.phoneNumberBind(order.getOrderStartTime(), driverPhone, otherPhone);
+                ResponseResult<?> otherResponseResult = otherInterfaceTask.phoneNumberBind(order.getOrderStartTime(), driverPhone, otherPhone);
                 if (otherResponseResult.getCode() == BusinessInterfaceStatus.SUCCESS.getCode()) {
                     BoundPhoneDto boundPhoneDto = RestTemplateHepler.parse(otherResponseResult, BoundPhoneDto.class);
                     order.setOtherMappingId(boundPhoneDto.getAxbSubsId());
@@ -595,12 +588,11 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 批量修改
      *
-     * @param request
-     * @return
-     * @throws Exception
+     * @param request  订单申请对象
+     * @return ResponseResult实例
      */
     @Override
-    public ResponseResult batchUpdate(OrderDtoRequest request) {
+    public ResponseResult<?> batchUpdate(OrderDtoRequest request) {
         log.info("orderIds{}", request);
         if (request.getInvoiceType() <= 0) {
             return ResponseResult.fail(BusinessInterfaceStatus.FAIL.getCode(), "状态不能小于等于0");
@@ -626,15 +618,13 @@ public class OrderServiceImpl implements OrderService {
      * @param orderDtoRequest 订单申请对象
      * @return 返回对象
      */
-    public ResponseResult updateOrderRuleMirror(OrderDtoRequest orderDtoRequest) throws Exception {
-        ResponseResult responseResult;
+    public ResponseResult<?> updateOrderRuleMirror(OrderDtoRequest orderDtoRequest) throws Exception {
+        ResponseResult<?> responseResult;
         OrderRuleMirror orderRuleMirror = orderRuleMirrorMapper.selectByPrimaryKey(orderDtoRequest.getOrderId());
         String originalRule = orderRuleMirror.getRule();
         Rule rule = parse(originalRule, Rule.class);
         KeyRule keyRule = rule.getKeyRule();
 
-        OrderKeyRuleDto orderKeyRuleDto = new OrderKeyRuleDto();
-        orderKeyRuleDto.setOrderId(orderDtoRequest.getOrderId());
         orderDtoRequest.setServiceTypeId(keyRule.getServiceTypeId());
         orderDtoRequest.setServiceTypeName(keyRule.getServiceTypeName());
         orderDtoRequest.setChannelId(keyRule.getChannelId());
@@ -668,14 +658,14 @@ public class OrderServiceImpl implements OrderService {
      * @param orderId 订单号
      * @return 返回对象
      */
-    public ResponseResult insertOrUpdateOrderRuleMirror(Rule rule, Integer orderId) {
-        log.info("Rule{}" + rule);
+    public ResponseResult<?> insertOrUpdateOrderRuleMirror(Rule rule, Integer orderId) {
+        log.info("Rule{}" , rule);
         OrderRuleMirror orderRuleMirror = new OrderRuleMirror();
         try {
             orderRuleMirror.setOrderId(orderId);
             orderRuleMirror.setRuleId(rule.getId());
             orderRuleMirror.setRule(new ObjectMapper().writeValueAsString(rule));
-            int up = 0;
+            int up;
             if (!flag) {
                 up = orderRuleMirrorMapper.updateByPrimaryKeySelective(orderRuleMirror);
             } else {

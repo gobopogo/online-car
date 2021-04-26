@@ -7,6 +7,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
+ * 定时任务主程序
+ *
+ * @author dongjb
+ * @date 2021/04/20
  */
 @SpringBootApplication
 @EnableAsync

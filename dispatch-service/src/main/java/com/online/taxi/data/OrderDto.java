@@ -3,9 +3,16 @@ package com.online.taxi.data;
 import com.online.taxi.entity.Order;
 
 /**
- * @date 2018/8/30
+ * 订单对象
+ *
+ * @author dongjb
+ * @date 2021/04/25
  */
 public class OrderDto extends Order {
+    private Integer orderId;
+
+    private Integer updateType;
+
     public Integer getOrderId() {
         return orderId;
     }
@@ -13,10 +20,6 @@ public class OrderDto extends Order {
     public void setOrderId(Integer orderId) {
         this.orderId = orderId;
     }
-
-    private Integer orderId;
-
-    private Integer updateType;
 
     public Integer getUpdateType() {
         return updateType;

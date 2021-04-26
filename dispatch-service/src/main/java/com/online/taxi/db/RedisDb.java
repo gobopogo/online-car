@@ -1,20 +1,24 @@
 package com.online.taxi.db;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.concurrent.TimeUnit;
 
 /**
+ * redis库
+ *
+ * @author dongjb
+ * @date 2021/04/24
  */
 @Repository
+@RequiredArgsConstructor
 public class RedisDb {
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+
+    @NonNull
+    private final RedisTemplate<String, String> redisTemplate;
 
     public String get(String key) {
         return redisTemplate.opsForValue().get(key);
@@ -22,7 +26,6 @@ public class RedisDb {
 
     public void set(String key, String value, long expireTime) {
         redisTemplate.opsForValue().set(key, value, expireTime, TimeUnit.SECONDS);
-        // redisTemplate.opsForValue().set
     }
 
     public void delete(String key) {
@@ -34,11 +37,11 @@ public class RedisDb {
     }
 
     public String getSet(String key, String value) {
-        String v = redisTemplate.opsForValue().getAndSet(key, value);
-        return v;
+        return redisTemplate.opsForValue().getAndSet(key, value);
     }
 
     public boolean setnx(String key, String value, int second) {
+
         boolean b = redisTemplate.opsForValue().setIfAbsent(key, value);
         if (b) {
             redisTemplate.expire(key, second, TimeUnit.SECONDS);

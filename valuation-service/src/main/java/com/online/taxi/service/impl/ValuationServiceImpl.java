@@ -84,7 +84,6 @@ public class ValuationServiceImpl implements ValuationService {
         //缓存结果
         priceCache.set(orderId, priceMeter, 1, TimeUnit.HOURS);
 
-        //TODO
         doneForecast(orderId);
 
         //返回价格

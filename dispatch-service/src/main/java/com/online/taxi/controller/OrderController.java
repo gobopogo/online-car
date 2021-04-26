@@ -38,7 +38,7 @@ public class OrderController {
      */
     @ResponseBody
     @RequestMapping(value = "/dispatchOrder", produces = "application/json; charset=utf-8")
-    public ResponseResult dispatchOrder(@RequestBody DispatchOrderRequest request) {
+    public ResponseResult<?> dispatchOrder(@RequestBody DispatchOrderRequest request) {
         int orderId = request.getOrderId();
         taskManager.dispatch(orderId);
         return ResponseResult.success("success");
@@ -51,7 +51,7 @@ public class OrderController {
      * @return 结果对象
      */
     @PostMapping("/vehicleDispatch")
-    public ResponseResult dispatch(@RequestBody DispatchRequest dispatchRequest) {
+    public ResponseResult<?> dispatch(@RequestBody DispatchRequest dispatchRequest) {
         return DispatchService.ins().dispatch(dispatchRequest);
     }
 

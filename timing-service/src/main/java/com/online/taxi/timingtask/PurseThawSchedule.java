@@ -7,7 +7,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +16,8 @@ import java.util.List;
 /**
  * 钱包解冻定时任务
  *
- * @date 2018/9/8
+ * @author dongjb
+ * @date 2021/04/20
  */
 @Component
 @RequiredArgsConstructor
@@ -25,21 +25,20 @@ import java.util.List;
 public class PurseThawSchedule {
 
     @NonNull
-    private PassengerWalletFreezeRecordMapper passengerWalletFreezeRecordMapper;
+    private final PassengerWalletFreezeRecordMapper passengerWalletFreezeRecordMapper;
 
-    @Autowired
-    private OtherInterfaceTask otherInterfaceTask;
+    @NonNull
+    private final OtherInterfaceTask otherInterfaceTask;
 
     @Scheduled(cron = "0 */2 *  * * ? ")
     private void doEveryMonthJob() {
         Date date = new Date();
-        try{
+        try {
             List<PassengerWalletFreezeRecord> passengerWalletFreezeRecordsList = passengerWalletFreezeRecordMapper.selectPurseThaw(date);
             log.info("待解冻记录：" + JSONArray.fromObject(passengerWalletFreezeRecordsList));
-            for(int i=0;i<passengerWalletFreezeRecordsList.size();i++){
-                PassengerWalletFreezeRecord passengerWalletFreezeRecord = passengerWalletFreezeRecordsList.get(i);
+            for (PassengerWalletFreezeRecord passengerWalletFreezeRecord : passengerWalletFreezeRecordsList) {
                 log.info("解冻yid:" + passengerWalletFreezeRecord.getPassengerInfoId() + ",orderId:" + passengerWalletFreezeRecord.getOrderId());
-                otherInterfaceTask.walletUnfreeze(passengerWalletFreezeRecord.getOrderId(),passengerWalletFreezeRecord.getPassengerInfoId());
+                otherInterfaceTask.walletUnfreeze(passengerWalletFreezeRecord.getOrderId(), passengerWalletFreezeRecord.getPassengerInfoId());
             }
         } catch (Exception e) {
             e.printStackTrace();

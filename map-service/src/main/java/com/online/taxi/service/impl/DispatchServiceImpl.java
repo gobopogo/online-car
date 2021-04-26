@@ -42,7 +42,7 @@ public class DispatchServiceImpl implements DispatchService {
     private final RestTemplate restTemplate;
 
     @Override
-    public ResponseResult dispatch(DispatchRequest dispatchRequest) {
+    public ResponseResult<?> dispatch(DispatchRequest dispatchRequest) {
 
         StringBuilder urlBuild = new StringBuilder();
         urlBuild.append(AmapUrlConfig.DISPATCH_URL);

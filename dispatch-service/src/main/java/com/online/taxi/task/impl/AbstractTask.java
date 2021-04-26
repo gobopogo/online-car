@@ -86,7 +86,7 @@ public abstract class AbstractTask implements ITask {
         TaskCondition taskCondition = taskConditions.get(currentRound);
         log.info("#orderId = " + order.getId() + "  round = " + currentRound + "  派单 round = " + currentRound);
 
-        boolean b = true;
+        boolean b;
         b = sendOrder(order, orderRulePrice, taskCondition, currentRound);
         nextExecuteTime = current + TimeUnit.SECONDS.toMillis(taskCondition.getNextTime());
         if (!b) {

@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Data;
 
 /**
- * 车辆调度对象
+ * 车辆调度结果
  *
  * @author dongjb
  * @date 2021/04/15

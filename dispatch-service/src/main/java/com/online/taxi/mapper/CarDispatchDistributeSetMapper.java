@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import com.online.taxi.entity.CarDispatchDistributeSet;
 
 /**
- * 派单强制分派
+ * 强制分派设置
  *
  * @author dongjb
  * @date 2021/04/15s

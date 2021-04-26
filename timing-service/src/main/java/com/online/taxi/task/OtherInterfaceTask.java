@@ -2,15 +2,12 @@ package com.online.taxi.task;
 
 import com.online.taxi.constatnt.BusinessInterfaceStatus;
 import com.online.taxi.dto.ResponseResult;
-import com.online.taxi.entity.Order;
 import com.online.taxi.request.FreezeRequest;
 import com.online.taxi.response.StsToken;
-import com.online.taxi.util.RestTemplateHepler;
 import com.online.taxi.utils.ServicesConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -41,7 +38,7 @@ public class OtherInterfaceTask {
     @Autowired
     private ServicesConfig servicesConfig;
 
-    public StsToken getALiToken(String token){
+    public StsToken getALiToken(String token) {
         StsToken stsToken = null;
         try {
             ResponseResult responseResult = restTemplate.getForObject(servicesConfig.getFile() + "/sts/authorization/" + token, ResponseResult.class);
@@ -50,45 +47,47 @@ public class OtherInterfaceTask {
                 return stsToken;
             }
             JSONObject jsonobject = JSONObject.fromObject(responseResult.getData());
-            stsToken= (StsToken)JSONObject.toBean(jsonobject,StsToken.class);
+            stsToken = (StsToken) JSONObject.toBean(jsonobject, StsToken.class);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("authorization:", e);
         }
-            return stsToken;
+        return stsToken;
     }
 
     /**
      * 钱包解冻
-     * @param orderId
-     * @param passengerInfoId
-     * @return
+     *
+     * @param orderId         订单号
+     * @param passengerInfoId 乘客标识
      */
-    public ResponseResult walletUnfreeze(Integer orderId,Integer passengerInfoId){
+    public void walletUnfreeze(Integer orderId, Integer passengerInfoId) {
         String lock = (lockKey + orderId).intern();
         BoundValueOperations<String, String> lockRedis;
         String uuid = UUID.randomUUID().toString();
         lockRedis = redisTemplate.boundValueOps(lock);
         Boolean lockBoolean = lockRedis.setIfAbsent(uuid);
-        if (lockBoolean) {
+        if (lockBoolean != null && lockBoolean) {
             lockRedis.expire(15L, TimeUnit.SECONDS);
-        }else{
+        } else {
             redisTemplate.delete(lock);
-            return ResponseResult.fail(BusinessInterfaceStatus.FAIL.getCode(),"解冻失败");
+            ResponseResult.fail(BusinessInterfaceStatus.FAIL.getCode(), "解冻失败");
+            return;
         }
-        ResponseResult responseResult;
+        ResponseResult<?> responseResult;
         FreezeRequest freezeRequest = new FreezeRequest();
         freezeRequest.setOrderId(orderId);
         freezeRequest.setYid(passengerInfoId);
-        try{
+        try {
             responseResult = restTemplate.postForObject(servicesConfig.getPay() + "/order", freezeRequest, ResponseResult.class);
             if (BusinessInterfaceStatus.SUCCESS.getCode() != responseResult.getCode()) {
-                return ResponseResult.fail(BusinessInterfaceStatus.FAIL.getCode(),"解冻失败");
+                ResponseResult.fail(BusinessInterfaceStatus.FAIL.getCode(), "解冻失败");
+                return;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         redisTemplate.delete(lock);
-        return ResponseResult.success("解冻成功");
+        ResponseResult.success("解冻成功");
     }
 }

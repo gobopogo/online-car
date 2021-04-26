@@ -58,21 +58,18 @@ public class OrderForceTask extends AbstractTask {
                 }
                 log.info("#orderId= " + orderId + "  round = " + round + "  司机数量 = " + list.size());
                 for (DriverData data : list) {
-                    log.info("#orderId= " + orderId + "  round = " + round + "司机信息：" + JSONObject.fromObject(data));
+                    log.info("#orderId1= " + orderId + "  round = " + round + "司机信息：" + JSONObject.fromObject(data));
                     Date startTime = new Date(order.getOrderStartTime().getTime() - TimeUnit.MINUTES.toMillis(taskCondition.getFreeTimeBefor()));
                     Date endTime = new Date(order.getOrderStartTime().getTime() + TimeUnit.MINUTES.toMillis(taskCondition.getFreeTimeAfter()));
-                    String redisKey = Const.REDIS_KEY_DRIVER + data.getDriverInfo().getId();
+                    String driverKey = Const.REDIS_KEY_DRIVER + data.getDriverInfo().getId();
                     log.info("#orderId= " + orderId + "  round = " + round + "车辆高德信息：" + JSONObject.fromObject(data.getAmapVehicle()));
                     try {
-                        RedisLock.ins().lock(redisKey);
+                        RedisLock.ins().lock(driverKey);
                         int count = DispatchService.ins().countDriverOrder(data.getDriverInfo().getId(), startTime, endTime);
                         if (count > 0) {
                             continue;
                         }
-                        String otherPhone = order.getPassengerPhone();
-                        if (StringUtils.isNotEmpty(order.getOtherPhone())) {
-                            otherPhone = order.getOtherPhone();
-                        }
+
                         OrderDto updateOrder = new OrderDto();
                         BoundPhoneDto bindAxbResponse1 = null;
                         BoundPhoneDto bindAxbResponse2 = null;
@@ -146,8 +143,8 @@ public class OrderForceTask extends AbstractTask {
                     } catch (Exception e) {
                         log.error("forceSendOrder", e);
                     } finally {
-                        log.info("unlock key = " + redisKey);
-                        RedisLock.ins().unlock(redisKey);
+                        log.info("unlock key = " + driverKey);
+                        RedisLock.ins().unlock(driverKey);
                     }
                 }
             }
@@ -260,9 +257,7 @@ public class OrderForceTask extends AbstractTask {
             String timeDesc = DateUtils.formatDate(order.getOrderStartTime(), DateUtils.yyMMddHHmm);
             JSONObject msg = new JSONObject();
             DecimalFormat df = new DecimalFormat("#0.00");
-            String typeDesc = "";
-            String useFeature = order.getUserFeature();
-            String content = "";
+            String content;
             if (order.getServiceType() == OrderTypeEnum.CHARTERED_CAR_HALF.getCode() || order.getServiceType() == OrderTypeEnum.CHARTERED_CAR_FULL.getCode()) {
                 content = "您收到一条包车派单," + timeDesc + "上车点" + order.getStartAddress() + "乘客尾号" + StringUtils.substring(passengerPhone, passengerPhone.length() - 4) + ",请合理安排接乘时间";
             } else {

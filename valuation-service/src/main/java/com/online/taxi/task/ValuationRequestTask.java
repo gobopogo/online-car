@@ -99,7 +99,7 @@ public class ValuationRequestTask {
 
             String param = map.keySet().stream().map(k -> k + "={" + k + "}").collect(Collectors.joining("&"));
             String url = serviceAddress.getMapAddress() + "/distance?" + param;
-            ResponseResult result = restTemplate.getForObject(url, ResponseResult.class, map);
+            ResponseResult<?> result = restTemplate.getForObject(url, ResponseResult.class, map);
             log.info("调用接口Route返回{}", result);
             route = RestTemplateHepler.parse(result, Route.class);
 
@@ -175,7 +175,7 @@ public class ValuationRequestTask {
 
                 String param = map.keySet().stream().map(k -> k + "={" + k + "}").collect(Collectors.joining("&"));
                 String url = serviceAddress.getMapAddress() + "/route/distance?" + param;
-                ResponseResult responseResult = restTemplate.getForObject(url, ResponseResult.class, map);
+                ResponseResult<?> responseResult = restTemplate.getForObject(url, ResponseResult.class, map);
                 Distance distance = RestTemplateHepler.parse(responseResult, Distance.class);
 
                 if (null == distance || null == distance.getDistance()) {

@@ -15,7 +15,6 @@ import com.online.taxi.dto.valuation.charging.*;
 import com.online.taxi.entity.*;
 import com.online.taxi.util.RestTemplateHepler;
 import com.online.taxi.dao.ChargeRuleDao;
-import com.online.taxi.mapper.CarLevelMapper;
 import com.online.taxi.request.OrderDtoRequest;
 import com.online.taxi.utils.Distance;
 import com.online.taxi.utils.ServicesConfig;
@@ -36,7 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 其余接口任务
+ * 二方包接口任务
  *
  * @author dongjb
  * @date 2021/04/15
@@ -54,16 +53,13 @@ public class OtherInterfaceTask {
     @NonNull
     private final ChargeRuleDao chargeRuleDao;
 
-    @NonNull
-    private final CarLevelMapper carLevelMapper;
-
     /**
      * 获取路途长度和行驶时间
      *
      * @param orderRequest 订单申请对象
      * @return 结果对象
      */
-    public ResponseResult requestRoute(OrderDtoRequest orderRequest) {
+    public ResponseResult<?> requestRoute(OrderDtoRequest orderRequest) {
         Route route;
         DistanceRequest distanceRequest = new DistanceRequest();
         distanceRequest.setOriginLongitude(orderRequest.getStartLongitude());
@@ -73,7 +69,7 @@ public class OtherInterfaceTask {
         Map<String, Object> map = object2Map(distanceRequest);
         String param = map.keySet().stream().map(k -> k + "={" + k + "}").collect(Collectors.joining("&"));
         try {
-            ResponseResult responseResult = restTemplate.getForObject(servicesConfig.getMapAddress() + "/distance?" + param, ResponseResult.class, map);
+            ResponseResult<?> responseResult = restTemplate.getForObject(servicesConfig.getMapAddress() + "/distance?" + param, ResponseResult.class, map);
             route = RestTemplateHepler.parse(responseResult, Route.class);
             log.info("测量距离返回={}", route);
 
@@ -102,14 +98,13 @@ public class OtherInterfaceTask {
      * @param orderDtoRequest 订单申请对象
      * @return 结果信息
      */
-    public ResponseResult getOrderChargeRule(OrderDtoRequest orderDtoRequest) {
+    public ResponseResult<?> getOrderChargeRule(OrderDtoRequest orderDtoRequest) {
         Rule rule = new Rule();
         ChargeRule chargeRule = new ChargeRule();
         chargeRule.setCityCode(orderDtoRequest.getCityCode());
         chargeRule.setServiceTypeId(orderDtoRequest.getServiceTypeId());
         chargeRule.setChannelId(orderDtoRequest.getChannelId());
         chargeRule.setCarLevelId(orderDtoRequest.getCarLevelId());
-        CarLevel carLevel = carLevelMapper.selectByPrimaryKey(orderDtoRequest.getCarLevelId());
         List<ChargeRule> chargeRuleList = chargeRuleDao.selectByPrimaryKey(chargeRule);
         if (chargeRuleList.size() != 1) {
             return ResponseResult.fail(BusinessInterfaceStatus.FAIL.getCode(), "无计价规则");
@@ -124,7 +119,7 @@ public class OtherInterfaceTask {
         keyRule.setChannelId(orderDtoRequest.getChannelId());
         keyRule.setChannelName(orderDtoRequest.getChannelName());
         keyRule.setCarLevelId(orderDtoRequest.getCarLevelId());
-        keyRule.setCarLevelName(carLevel.getLabel());
+        keyRule.setCarLevelName(orderDtoRequest.getCarLevelName());
         rule.setKeyRule(keyRule);
         BasicRule basicRule = new BasicRule();
         basicRule.setLowestPrice(chargeRule.getLowestPrice());
@@ -193,7 +188,7 @@ public class OtherInterfaceTask {
         PriceResult priceResult;
         log.info("orderId={}", orderId);
         try {
-            ResponseResult responseResult = restTemplate.getForObject(servicesConfig.getValuation() + "/valuation/forecast/" + orderId, ResponseResult.class);
+            ResponseResult<?> responseResult = restTemplate.getForObject(servicesConfig.getValuation() + "/valuation/forecast/" + orderId, ResponseResult.class);
             priceResult = RestTemplateHepler.parse(responseResult, PriceResult.class);
             log.info("预估价格返回数据={}", priceResult);
         } catch (Exception e) {
@@ -210,8 +205,8 @@ public class OtherInterfaceTask {
      * @param orderId 订单号
      * @return 返回对象
      */
-    public ResponseResult donePrice(int orderId) {
-        ResponseResult responseResult;
+    public ResponseResult<?> donePrice(int orderId) {
+        ResponseResult<?> responseResult;
         try {
             responseResult = restTemplate.getForObject(servicesConfig.getValuation() + "/valuation/forecast/done/" + orderId, ResponseResult.class);
         } catch (Exception e) {
@@ -228,8 +223,8 @@ public class OtherInterfaceTask {
      * @param carType  车辆类型
      * @return 返回对象
      */
-    public ResponseResult updateMap(Order order, Integer cityCode, Integer carType, String driverLongitude, String driverLatitude) {
-        ResponseResult responseResult = null;
+    public ResponseResult<?> updateMap(Order order, Integer cityCode, Integer carType, String driverLongitude, String driverLatitude) {
+        ResponseResult<?> responseResult = null;
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.setOrderId(order.getId().toString());
         orderRequest.setCustomerDeviceId(order.getDeviceCode());
@@ -301,8 +296,8 @@ public class OtherInterfaceTask {
      * @param routeRequest 查询轨迹申请
      * @return 结果对象
      */
-    public ResponseResult selectVehiclePoints(RouteRequest routeRequest) {
-        ResponseResult responseResult;
+    public ResponseResult<?> selectVehiclePoints(RouteRequest routeRequest) {
+        ResponseResult<?> responseResult;
         try {
             Map<String, Object> map = object2Map(routeRequest);
             log.info("map={}", map);
@@ -324,8 +319,8 @@ public class OtherInterfaceTask {
      * @param passengerPhone 乘客手机号
      * @return 返回对象
      */
-    public ResponseResult phoneNumberBind(Date startTime, String driverPhone, String passengerPhone) {
-        ResponseResult responseResult = null;
+    public ResponseResult<?> phoneNumberBind(Date startTime, String driverPhone, String passengerPhone) {
+        ResponseResult<?> responseResult = null;
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(startTime);
@@ -354,8 +349,8 @@ public class OtherInterfaceTask {
      * @param mappingNumber 绑定的手机号
      * @return 返回对象
      */
-    public ResponseResult phoneNumberUnbind(String mappingId, String mappingNumber) {
-        ResponseResult responseResult = null;
+    public ResponseResult<?> phoneNumberUnbind(String mappingId, String mappingNumber) {
+        ResponseResult<?> responseResult = null;
         PhoneNumberRequest phoneNumberRequest = new PhoneNumberRequest();
         phoneNumberRequest.setSubsId(mappingId);
         phoneNumberRequest.setSecretNo(mappingNumber);
@@ -369,7 +364,6 @@ public class OtherInterfaceTask {
         return responseResult;
     }
 
-
     /**
      * 实体对象转成Map
      *
@@ -381,7 +375,7 @@ public class OtherInterfaceTask {
         if (obj == null) {
             return map;
         }
-        Class clazz = obj.getClass();
+        Class<?> clazz = obj.getClass();
         Field[] fields = clazz.getDeclaredFields();
         try {
             for (Field field : fields) {

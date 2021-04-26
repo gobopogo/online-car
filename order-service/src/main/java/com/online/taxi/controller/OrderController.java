@@ -1,8 +1,6 @@
 package com.online.taxi.controller;
 
 import com.online.taxi.dto.ResponseResult;
-import com.online.taxi.dto.OrderOtherPrice;
-import com.online.taxi.dto.OrderPrice;
 import com.online.taxi.request.OrderDtoRequest;
 import com.online.taxi.service.OrderGrabService;
 import com.online.taxi.service.OrderService;
@@ -37,8 +35,8 @@ public class OrderController {
      * @return 结果
      */
     @PostMapping("/forecast")
-    public ResponseResult forecast(@RequestBody OrderDtoRequest request) {
-        ResponseResult responseResult;
+    public ResponseResult<?> forecast(@RequestBody OrderDtoRequest request) {
+        ResponseResult<?> responseResult;
         try {
             responseResult = orderService.forecastOrderCreate(request);
         } catch (Exception e) {
@@ -56,8 +54,8 @@ public class OrderController {
      * @return 结果
      */
     @PostMapping("/callCar")
-    public ResponseResult callCar(@RequestBody OrderDtoRequest request) {
-        ResponseResult responseResult;
+    public ResponseResult<?> callCar(@RequestBody OrderDtoRequest request) {
+        ResponseResult<?> responseResult;
         try {
             responseResult = orderService.callCar(request);
         } catch (Exception e) {
@@ -75,8 +73,8 @@ public class OrderController {
      * @return 返回对象
      */
     @PostMapping("/updateOrder")
-    public ResponseResult updateOrder(@RequestBody OrderDtoRequest orderDtoRequest) {
-        ResponseResult responseResult;
+    public ResponseResult<?> updateOrder(@RequestBody OrderDtoRequest orderDtoRequest) {
+        ResponseResult<?> responseResult;
         try {
             responseResult = orderService.updateOrder(orderDtoRequest, orderDtoRequest.getDriverLongitude(), orderDtoRequest.getDriverLatitude());
         } catch (Exception e) {
@@ -94,8 +92,8 @@ public class OrderController {
      * @return 返回对象
      */
     @PostMapping("/grab")
-    public ResponseResult grab(@RequestBody OrderDtoRequest request) {
-        ResponseResult<OrderPrice> responseResult;
+    public ResponseResult<?> grab(@RequestBody OrderDtoRequest request) {
+        ResponseResult<?> responseResult;
         try {
             responseResult = orderGrabService.grab(request);
         } catch (Exception e) {
@@ -113,8 +111,8 @@ public class OrderController {
      * @return 返回对象
      */
     @PostMapping("/otherPrice")
-    public ResponseResult otherPriceBalance(@RequestBody OrderDtoRequest request) {
-        ResponseResult<OrderOtherPrice> responseResult;
+    public ResponseResult<?> otherPriceBalance(@RequestBody OrderDtoRequest request) {
+        ResponseResult<?> responseResult;
         try {
             responseResult = orderService.otherPriceBalance(request);
         } catch (Exception e) {
@@ -132,8 +130,8 @@ public class OrderController {
      * @return 返回对象
      */
     @PostMapping("/reassignment")
-    public ResponseResult reassignmentOrder(@RequestBody OrderDtoRequest request) {
-        ResponseResult responseResult;
+    public ResponseResult<?> reassignmentOrder(@RequestBody OrderDtoRequest request) {
+        ResponseResult<?> responseResult;
         try {
             responseResult = orderService.reassignmentOrder(request);
         } catch (Exception e) {
@@ -151,8 +149,8 @@ public class OrderController {
      * @return 返回对象
      */
     @PostMapping("/batchUpdate")
-    public ResponseResult batchUpdate(@RequestBody OrderDtoRequest request) {
-        ResponseResult responseResult = null;
+    public ResponseResult<?> batchUpdate(@RequestBody OrderDtoRequest request) {
+        ResponseResult<?> responseResult = null;
         try {
             responseResult = orderService.batchUpdate(request);
         } catch (Exception e) {

@@ -1,8 +1,6 @@
 package com.online.taxi.service;
 
 import com.online.taxi.dto.ResponseResult;
-import com.online.taxi.dto.OrderOtherPrice;
-import com.online.taxi.dto.OrderPrice;
 import com.online.taxi.request.OrderDtoRequest;
 
 /**
@@ -20,7 +18,7 @@ public interface OrderService {
      * @return  结果
      * @throws Exception 异常
      */
-    ResponseResult<OrderPrice> forecastOrderCreate(OrderDtoRequest request) throws Exception;
+    ResponseResult<?> forecastOrderCreate(OrderDtoRequest request) throws Exception;
 
     /**
      * 叫车
@@ -29,7 +27,7 @@ public interface OrderService {
      * @return 结果
      * @throws Exception 异常
      */
-    ResponseResult<Object> callCar(OrderDtoRequest request) throws Exception;
+    ResponseResult<?> callCar(OrderDtoRequest request) throws Exception;
 
     /**
      * 订单修改
@@ -39,7 +37,7 @@ public interface OrderService {
      * @param driverLatitude 司机纬度
      * @return 结果
      */
-    ResponseResult<Object> updateOrder(OrderDtoRequest orderDtoRequest, String driverLongitude, String driverLatitude);
+    ResponseResult<?> updateOrder(OrderDtoRequest orderDtoRequest, String driverLongitude, String driverLatitude);
 
     /**
      * 其它费用结算
@@ -48,7 +46,7 @@ public interface OrderService {
      * @return 结果
      * @throws Exception 异常
      */
-    ResponseResult<OrderOtherPrice> otherPriceBalance(OrderDtoRequest request) throws Exception;
+    ResponseResult<?> otherPriceBalance(OrderDtoRequest request) throws Exception;
 
     /**
      * 订单改派
@@ -57,7 +55,7 @@ public interface OrderService {
      * @return 结果
      * @throws Exception 异常
      */
-    ResponseResult<Object> reassignmentOrder(OrderDtoRequest request) throws Exception;
+    ResponseResult<?> reassignmentOrder(OrderDtoRequest request) throws Exception;
 
     /**
      * 批量修改
@@ -66,6 +64,6 @@ public interface OrderService {
      * @return 结果
      * @throws Exception 异常
      */
-    ResponseResult<Object> batchUpdate(OrderDtoRequest request) throws Exception;
+    ResponseResult<?> batchUpdate(OrderDtoRequest request) throws Exception;
 
 }

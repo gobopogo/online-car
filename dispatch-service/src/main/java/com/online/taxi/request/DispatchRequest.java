@@ -41,10 +41,6 @@ public class DispatchRequest {
 
     private Integer maxCount;
 
-    public DispatchRequest() {
-
-    }
-
     public DispatchRequest(String orderId, String customerDeviceId, Integer orderType, Integer vehicleType, String orderCity, Long orderTime, Long startTime, String startName, String startLongitude, String startLatitude, String endName, String endLongitude, String endLatitude, Integer radius, Integer maxCount) {
         this.orderId = orderId;
         this.customerDeviceId = customerDeviceId;

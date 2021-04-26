@@ -1,7 +1,8 @@
 package com.online.taxi.service;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,17 +26,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @date 2018/8/14
+ * 二方包服务
+ *
+ * @author dongjb
+ * @date 2021/04/25
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class HttpService {
-    @Autowired
-    private RestTemplate restTemplate;
-    @Autowired
-    private ConfigService configService;
+    @NonNull
+    private final RestTemplate restTemplate;
+    @NonNull
+    private final ConfigService configService;
 
-    public ResponseResult sendSms(String phone, String smsCode, Map<String, Object> templateMap) {
+    public void sendSms(String phone, String smsCode, Map<String, Object> templateMap) {
         String url = configService.messageServiceUrl() + "/sms/send";
         SmsSendRequest request = new SmsSendRequest();
         String[] receivers = new String[1];
@@ -48,33 +53,28 @@ public class HttpService {
         list.add(dto);
         request.setData(list);
 
-        ResponseResult response = restTemplate.postForObject(url, request, ResponseResult.class);
-        return response;
+        restTemplate.postForObject(url, request, ResponseResult.class);
     }
 
-    public ResponseResult sendSms(String phone, String smsCode, String... content) throws Exception {
+    public void sendSms(String phone, String smsCode, String... content) {
         String url = configService.messageServiceUrl() + "/sms/hx_send";
         SmsRequest request = new SmsRequest();
         request.setPhones(new String[]{phone});
         request.setTemplateId(smsCode);
         request.setContent(content);
 
-        ResponseResult responseResult = restTemplate.postForObject(url, request, ResponseResult.class);
-
-        return responseResult;
+        restTemplate.postForObject(url, request, ResponseResult.class);
     }
 
-    public ResponseResult updateAmapOrder(OrderRequest orderRequest) {
+    public void updateAmapOrder(OrderRequest orderRequest) {
         String url = configService.mapServiceUrl() + "/order";
-        ResponseResult response = restTemplate.postForObject(url, orderRequest, ResponseResult.class);
-        return response;
+        restTemplate.postForObject(url, orderRequest, ResponseResult.class);
     }
 
     public ResponseResult<Dispatch> dispatch(DispatchRequest dispatchRequest) {
         String url = configService.mapServiceUrl() + "/vehicleDispatch";
-        ResponseResult response = restTemplate.postForObject(url, dispatchRequest, ResponseResult.class);
+        ResponseResult<Dispatch> response = restTemplate.postForObject(url, dispatchRequest, ResponseResult.class);
         try {
-            log.info(response.toString());
             Dispatch o = RestTemplateHepler.parse(response, Dispatch.class);
             return ResponseResult.success(o);
         } catch (Exception e) {
@@ -85,16 +85,16 @@ public class HttpService {
 
     public double calDistance(DistanceRequest distanceRequest) {
         String url = configService.mapServiceUrl() + "/distance?";
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>(16);
         map.put("originLongitude", distanceRequest.getOriginLongitude());
         map.put("originLatitude", distanceRequest.getOriginLatitude());
         map.put("destinationLongitude", distanceRequest.getDestinationLongitude());
         map.put("destinationLatitude", distanceRequest.getDestinationLatitude());
-        String param = String.join("&", map.keySet().stream().map(k -> k + "={" + k + "}").collect(Collectors.toList()));
+        String param = map.keySet().stream().map(k -> k + "={" + k + "}").collect(Collectors.joining("&"));
         url = url + param;
         double distance = Integer.MAX_VALUE;
-        ResponseResult response = restTemplate.getForObject(url, ResponseResult.class, map);
-        if (response.getData() != null) {
+        ResponseResult<?> response = restTemplate.getForObject(url, ResponseResult.class, map);
+        if (response != null && response.getData() != null) {
             try {
                 log.info(response.toString());
                 Route o = RestTemplateHepler.parse(response, Route.class);
@@ -108,32 +108,30 @@ public class HttpService {
 
     public void unbind(String subId, String secretNo) {
         String url = configService.fileServiceUrl() + "phone/unbind?";
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>(16);
         map.put("subsId", subId);
         map.put("secretNo", secretNo);
-        String param = String.join("&", map.keySet().stream().map(k -> k + "={" + k + "}").collect(Collectors.toList()));
+        String param = map.keySet().stream().map(k -> k + "={" + k + "}").collect(Collectors.joining("&"));
         url = url + param;
         log.info("unbind url " + url);
-        ResponseResult response = restTemplate.getForObject(url, ResponseResult.class, map);
+        ResponseResult<?> response = restTemplate.getForObject(url, ResponseResult.class, map);
         log.info("unbind response " + response);
     }
 
     public BoundPhoneDto bind(String phone1, String phone2, long expireTime) {
         String url = configService.fileServiceUrl() + "/phone/bind?";
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>(16);
         map.put("driverPhone", phone1);
         map.put("passengerPhone", phone2);
         map.put("expiration", DateUtils.formatDate(new Date(expireTime), DateUtils.DEFAULT_TIME_FORMAT));
-        String param = String.join("&", map.keySet().stream().map(k -> k + "={" + k + "}").collect(Collectors.toList()));
+        String param = map.keySet().stream().map(k -> k + "={" + k + "}").collect(Collectors.joining("&"));
         url = url + param;
         log.info("bind " + url);
-        ResponseResult response = restTemplate.getForObject(url, ResponseResult.class, map);
-        log.info("bind result " + response.toString());
-        if (response.getData() != null) {
-            log.info(response.toString());
+        ResponseResult<?> response = restTemplate.getForObject(url, ResponseResult.class, map);
+        if (response != null && response.getData() != null) {
+            log.info("bind result " + response);
             try {
-                BoundPhoneDto data = RestTemplateHepler.parse(response, BoundPhoneDto.class);
-                return data;
+                return RestTemplateHepler.parse(response, BoundPhoneDto.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -143,29 +141,23 @@ public class HttpService {
 
     public boolean updateOrder(Order order) {
         String url = configService.orderServiceUrl() + "/order/updateOrder";
-        ResponseResult response = restTemplate.postForObject(url, order, ResponseResult.class);
-        if (response.getCode() == 0) {
-            return true;
-        }
-        return false;
+        ResponseResult<?> response = restTemplate.postForObject(url, order, ResponseResult.class);
+        return response != null && response.getCode() == 0;
     }
 
-    public ResponseResult pushMsg(PushRequest pushRequest) {
+    public ResponseResult<?> pushMsg(PushRequest pushRequest) {
         String url = configService.messageServiceUrl() + "/push/message";
-        ResponseResult response = restTemplate.postForObject(url, pushRequest, ResponseResult.class);
-        return response;
+        return restTemplate.postForObject(url, pushRequest, ResponseResult.class);
     }
 
-    public ResponseResult loopMessage(PushLoopBatchRequest request) {
+    public ResponseResult<?> loopMessage(PushLoopBatchRequest request) {
         String url = configService.messageServiceUrl() + "/loop/message";
-        ResponseResult response = restTemplate.postForObject(url, request, ResponseResult.class);
-        return response;
+        return restTemplate.postForObject(url, request, ResponseResult.class);
     }
 
-    public ResponseResult loopMessageBatch(PushLoopBatchRequest request) {
+    public void loopMessageBatch(PushLoopBatchRequest request) {
         String url = configService.messageServiceUrl() + "/loop/batch/message";
-        ResponseResult response = restTemplate.postForObject(url, request, ResponseResult.class);
-        return response;
+        restTemplate.postForObject(url, request, ResponseResult.class);
     }
 
 }

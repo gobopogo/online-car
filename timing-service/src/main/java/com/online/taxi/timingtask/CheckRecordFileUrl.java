@@ -1,9 +1,5 @@
 package com.online.taxi.timingtask;
 
-import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.IAcsClient;
-import com.aliyuncs.profile.DefaultProfile;
-import com.aliyuncs.profile.IClientProfile;
 import com.online.taxi.constatnt.BusinessInterfaceStatus;
 import com.online.taxi.dto.ResponseResult;
 import com.online.taxi.entity.SecretVoiceRecords;
@@ -13,6 +9,8 @@ import com.online.taxi.response.StsToken;
 import com.online.taxi.service.impl.UploadService;
 import com.online.taxi.utils.AliPhoneConfig;
 import com.online.taxi.utils.OssApiConfig;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -32,23 +29,24 @@ import java.util.List;
  */
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class CheckRecordFileUrl {
     private static final String IS_OK = "OK";
 
-    @Autowired
-    private UploadService uploadService;
+    @NonNull
+    private final UploadService uploadService;
 
-    @Autowired
-    private SecretVoiceRecordsMapper secretVoiceRecordsMapper;
+    @NonNull
+    private final SecretVoiceRecordsMapper secretVoiceRecordsMapper;
 
-    @Autowired
-    private OssApiConfig ossConfig;
+    @NonNull
+    private final OssApiConfig ossConfig;
 
-    @Autowired
-    private AliPhoneConfig aliPhoneConfig;
+    @NonNull
+    private final AliPhoneConfig aliPhoneConfig;
 
-    @Autowired
-    private OtherInterfaceTask otherInterfaceTask;
+    @NonNull
+    private final OtherInterfaceTask otherInterfaceTask;
 
     @Scheduled(cron = "0 */2 *  * * ?")
     public void checkRecordFileUrlStart() {

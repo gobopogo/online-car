@@ -1,6 +1,7 @@
 package com.online.taxi.task.impl;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @date 2018/9/27
+ * 普通订单任务
+ *
+ * @author dongjb
+ * @date 2021/04/20
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Slf4j
 public class OrderNormalTask extends AbstractTask {
@@ -46,7 +51,7 @@ public class OrderNormalTask extends AbstractTask {
             log.info("#orderId= " + orderId + "  round = " + round + "司机数量0， 直接下一轮");
             return false;
         }
-        log.info("#orderId= " + orderId + "  round = " + round + "司机数量 = " + list.size() + "  司机ID：" + list.toString());
+        log.info("#orderId= " + orderId + "  round = " + round + "司机数量 = " + list.size() + "  司机ID：" + list);
         //推送
         JSONObject messageBody = new JSONObject();
         messageBody.put("orderId", orderId);
@@ -65,7 +70,7 @@ public class OrderNormalTask extends AbstractTask {
         messageBody.put("tagList", getTagsJson(order.getUserFeature()));
         String timeDesc = DateUtils.formatDate(order.getOrderStartTime(), DateUtils.yyMMddHHmm);
         String passengerPhone = EncriptUtil.decryptionPhoneNumber(order.getOtherPhone() == null || order.getOtherPhone().isEmpty() ? order.getPassengerPhone() : order.getOtherPhone());
-        String content = "";
+        String content;
         if (order.getServiceType() == OrderTypeEnum.CHARTERED_CAR_HALF.getCode() || order.getServiceType() == OrderTypeEnum.CHARTERED_CAR_FULL.getCode()) {
             content = "您收到一条" + getTypeDesc2(order) + "预约单是否抢单，" + timeDesc + "上车点" + order.getStartAddress();
         } else {

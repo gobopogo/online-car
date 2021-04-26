@@ -10,9 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 功能描述
+ * 服务url配置
  *
- * @date 2018/8/14
+ * @author dongjb
+ * @date 2021/04/20
  */
 @Component
 @ConfigurationProperties(prefix = "services", ignoreInvalidFields = true)
@@ -20,8 +21,8 @@ import java.util.Map;
 public class ServicesConfig {
     private List<Map<String, String>> address = new ArrayList<>();
 
-    private static final String FILE="file";
-    private static final String PAY ="pay";
+    private static final String FILE = "file";
+    private static final String PAY = "pay";
 
     /**
      * 获取服务接口地址
@@ -33,8 +34,12 @@ public class ServicesConfig {
         return address.stream().filter(m -> m.containsKey(key)).findFirst().orElse(new HashMap<>(0)).get(key);
     }
 
-    public String getFile(){return get(FILE);}
+    public String getFile() {
+        return get(FILE);
+    }
 
-    public String getPay(){return get(PAY);}
+    public String getPay() {
+        return get(PAY);
+    }
 
 }

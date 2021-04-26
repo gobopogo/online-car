@@ -8,13 +8,20 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * redis锁
+ *
+ * @author dongjb
  * @date 2018/9/1
  */
 public class RedisLock {
     @Autowired
     private RedisDb redisDb;
 
-    //自旋
+    /**
+     * 自旋
+     *
+     * @param key key
+     */
     public void lock(String key) {
         int k = 0;
         for (; ; ) {
@@ -24,7 +31,7 @@ public class RedisLock {
             }
 
             if (k++ >= 300) {
-                throw new RuntimeException("lock error key = " + key);
+                throw new RuntimeException("rdis lock error key = " + key);
             }
 
             try {
@@ -40,10 +47,10 @@ public class RedisLock {
     }
 
     private static class LazyHodler {
-        private static RedisLock ins = new RedisLock();
+        private final static RedisLock INS = new RedisLock();
     }
 
     public static RedisLock ins() {
-        return RedisLock.LazyHodler.ins;
+        return RedisLock.LazyHodler.INS;
     }
 }

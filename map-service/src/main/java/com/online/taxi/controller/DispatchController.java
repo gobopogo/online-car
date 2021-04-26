@@ -25,7 +25,7 @@ public class DispatchController {
     private final DispatchService dispatchService;
 
     @PostMapping("/vehicleDispatch")
-    public ResponseResult dispatch(@RequestBody DispatchRequest dispatchRequest) {
+    public ResponseResult<?> dispatch(@RequestBody DispatchRequest dispatchRequest) {
         return dispatchService.dispatch(dispatchRequest);
     }
 }
